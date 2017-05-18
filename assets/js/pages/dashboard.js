@@ -188,5 +188,36 @@ $(function() {
     });
 
 
+$('.select').select2();
+$('.daterange-ranges').daterangepicker(
+    {
+        startDate: moment().subtract('days', 29),
+        endDate: moment(),
+        minDate: '01/01/2012',
+        maxDate: '12/31/2019',
+        dateLimit: { days: 60 },
+        ranges: {
+            'Today': [moment(), moment()],
+            'Yesterday': [moment().subtract('days', 1), moment().subtract('days', 1)],
+            'Last 7 Days': [moment().subtract('days', 6), moment()],
+            'Last 30 Days': [moment().subtract('days', 29), moment()],
+            'This Month': [moment().startOf('month'), moment().endOf('month')],
+            'Last Month': [moment().subtract('month', 1).startOf('month'), moment().subtract('month', 1).endOf('month')]
+        },
+        opens: 'left',
+        applyClass: 'btn-small bg-slate-600',
+        cancelClass: 'btn-small btn-default'
+    },
+    function(start, end) {
+        $('.daterange-ranges span').html(start.format('MMMM D, YYYY') + ' &nbsp; - &nbsp; ' + end.format('MMMM D, YYYY'));
+    }
+);
+// Display date format
+$('.daterange-ranges span').html(moment().subtract('days', 29).format('MMMM D, YYYY') + ' &nbsp; - &nbsp; ' + moment().format('MMMM D, YYYY'));
+$(".styled, .multiselect-container input").uniform({
+    radioClass: 'choice'
+});
+
+
 
 });

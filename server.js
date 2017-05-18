@@ -37,6 +37,9 @@ else {
     app.get('/home', function (req, res) {
         res.render('home');
     });
+    app.get('/sentiment', function (req, res) {
+        res.render('sentiment');
+    });
     app.get('/404', function (req, res) {
         res.render('error_404');
     });
