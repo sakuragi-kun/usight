@@ -40,6 +40,12 @@ else {
     app.get('/sentiment', function (req, res) {
         res.render('sentiment');
     });
+    app.get('/tracker', function (req, res) {
+        res.render('tracker');
+    });
+    app.get('/tracker-add', function (req, res) {
+        res.render('tracker-add');
+    });
     app.get('/404', function (req, res) {
         res.render('error_404');
     });

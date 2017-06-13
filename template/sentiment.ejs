@@ -20,6 +20,7 @@
 	<script type="text/javascript" src="assets/js/core/libraries/jquery.min.js"></script>
 	<script type="text/javascript" src="assets/js/core/libraries/bootstrap.min.js"></script>
 	<script type="text/javascript" src="assets/js/plugins/loaders/blockui.min.js"></script>
+
     <script type="text/javascript" src="assets/js/plugins/forms/selects/select2.min.js"></script>
 	<script type="text/javascript" src="assets/js/plugins/forms/selects/bootstrap_multiselect.js"></script>
 	<script type="text/javascript" src="assets/js/plugins/forms/selects/bootstrap_select.min.js"></script>
@@ -58,11 +59,13 @@
 	<script type="text/javascript" src="assets/js/plugins/pickers/pickadate/legacy.js"></script>
     <script type="text/javascript" src="assets/js/plugins/forms/styling/uniform.min.js"></script>
 	<script type="text/javascript" src="assets/js/plugins/forms/styling/switchery.min.js"></script>
+
 	<script type="text/javascript" src="assets/js/plugins/forms/styling/switch.min.js"></script>
+	<script type="text/javascript" src="assets/js/plugins/sliders/nouislider.min.js"></script>
 
 
 	<script type="text/javascript" src="assets/js/core/app.js"></script>
-	<script type="text/javascript" src="assets/js/pages/dashboard.js"></script>
+	<script type="text/javascript" src="assets/js/pages/sentiment.js"></script>
 	<!-- /theme JS files -->
 
 </head>
@@ -87,7 +90,7 @@
                     <h4 class="panel-title">SENTIMENT ANALYSIS</h4>
 
 					<div class="row" style="padding-left:10px;padding-right:10px;padding-top:20px">
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="form-group form-group-material">
                                 <label class=" has-margin"><b>Tracker Name</b></label>
                                 <select data-placeholder="select tracker.." multiple="multiple" class="select">
@@ -120,10 +123,10 @@
                                 </button>
                             </div>
                         </div>
-                        <div class="col-md-5">
+                        <div class="col-md-6">
                             <div class="form-group">
                                 <label class="display-block text-semibold"><b>Sources</b></label>
-                                
+
                                 <label class="checkbox-inline">
                                     <input type="checkbox" class="styled">
                                     Twitter
@@ -154,6 +157,87 @@
 
 					</div>
 					<!-- Main charts -->
+					<div class="row">
+						<div class="col-lg-9">
+
+							<!-- Traffic sources -->
+							<div class="panel panel-flat" >
+								<div class="panel-heading">
+									<h6 class="panel-title">Daily Buzz</h6>
+								</div>
+
+								<div class="position-relative" id="dailyBuzz"></div>
+							</div>
+							<!-- /traffic sources -->
+
+						</div>
+						<div class="col-lg-3">
+
+							<!-- Traffic sources -->
+							<div class="panel panel-flat" >
+								<div class="panel-heading" style="padding-bottom:5px;padding-top:5px">
+									<h6 class="panel-title">Sentiment Filter</h6>
+								</div>
+
+								<div class="container-fluid" style="padding-top:0px;padding-left:10px">
+									<div class="row" style="padding-left:20px">
+										<div class="checkbox">
+											<label>
+												<input type="checkbox" class="styled" checked="checked">
+												Positive (3500)
+											</label>
+										</div>
+									</div>
+									<div class="row" style="padding-left:20px">
+										<div class="checkbox">
+											<label>
+												<input type="checkbox" class="styled" checked="checked">
+												Positive (3500)
+											</label>
+										</div>
+									</div>
+									<div class="row" style="padding-left:20px">
+										<div class="checkbox">
+											<label>
+												<input type="checkbox" class="styled" checked="checked">
+												Positive (3500)
+											</label>
+										</div>
+									</div>
+
+								</div>
+							</div>
+							<div class="panel panel-flat" >
+								<div class="panel-heading">
+									<h6 class="panel-title">Sentiment Score</h6>
+								</div>
+
+								<div class="container-fluid">
+									<div class="row" style="padding-left:20px;padding-right:20px;padding-bottom:10px">
+										<div class="noui-slider-info has-pips" id="noui-slider-pips-range"></div>
+									</div>
+								</div>
+							</div>
+							<!-- /traffic sources -->
+
+						</div>
+						<div class="col-lg-4">
+
+							<div class="panel panel-flat" style="height:500px;">
+								<div class="panel-heading">
+									<h6 class="panel-title text-semibold">Sentiment Percentage</h6>
+								</div>
+
+								<div class="panel-body" style="margin-top:20px">
+									<div class="chart-container text-center">
+										<div class="display-inline-block" id="sentiment"></div>
+									</div>
+								</div>
+							</div>
+
+						</div>
+
+					</div>
 
 					<div class="row">
 						<div class="col-lg-5">
