@@ -15,11 +15,7 @@ $(function() {
         START WORDCLOUD BLOCK
         https://bl.ocks.org/blockspring/847a40e23f68d6d7e8b5
     */
-    var text_string = "Of course that’s your contention. You’re a first year grad student. You just got finished readin’ some Marxian historian, Pete Garrison probably. You’re gonna be convinced of that ’til next month when you get to James Lemon and then you’re gonna be talkin’ about how the economies of Virginia and Pennsylvania were entrepreneurial and capitalist way back in 1740. That’s gonna last until next year. You’re gonna be in here regurgitating Gordon Wood, talkin’ about, you know, the Pre-Revolutionary utopia and the capital-forming effects of military mobilization… ‘Wood drastically underestimates the impact of social distinctions predicated upon wealth, especially inherited wealth.’ You got that from Vickers, Work in Essex County, page 98, right? Yeah, I read that, too. Were you gonna plagiarize the whole thing for us? Do you have any thoughts of your own on this matter? Or do you, is that your thing? You come into a bar. You read some obscure passage and then pretend, you pawn it off as your own, as your own idea just to impress some girls and embarrass my friend? See, the sad thing about a guy like you is in 50 years, you’re gonna start doin’ some thinkin’ on your own and you’re gonna come up with the fact that there are two certainties in life. One: don’t do that. And two: you dropped a hundred and fifty grand on a fuckin’ education you coulda got for a dollar fifty in late charges at the public library.";
-
-      //drawWordCloud(text_string);
-
-      $.post(api+'/api/wordCloud',{project:'',max:50,total:150},function(e,r){
+    $.post(api+'/api/wordCloud',{project:'',max:50,total:150},function(e,r){
           console.log('aa',e)
           console.log('ab',r)
           drawWordCloud(e.message);
@@ -82,41 +78,145 @@ $(function() {
     // ------------------------------
 
     // Generate chart
-    var area_chart = c3.generate({
-        bindto: '#voicetracker',
-        size: { height: 300, width: ($('#voicetracker').width()-10) },
-        point: {
-            r: 4
-        },
-        color: {
-            pattern: ['#3949AB']
-        },
-        data: {
-            columns: [
-                ['data2', 130, 100, 140, 200, 150, 50]
-            ],
-            types: {
-                //data1: 'area-spline',
-                data2: 'area-spline'
-            }
-        },
-        grid: {
-            y: {
-                show: true
+    var today = new Date();
+    today = dateString(today);
+
+    var todayMin = new Date();
+    todayMin.setDate(todayMin.getDate() - 7);
+    todayMin = dateString(todayMin);
+    var arrDate = []
+    /*for (var i=0;i<7;i++){
+        var x = new Date()
+        x.setDate(x.getDate() - i);
+        arrDate.push(dateString(x))
+    }*/
+    for (var i=7;0<i;i--){
+        var x = new Date()
+        x.setDate(x.getDate() - (i-1));
+        arrDate.push(dateString(x))
+    }
+
+    function dateString(d){
+        var dd = d.getDate();
+        var mm = d.getMonth()+1; //January is 0!
+        var yyyy = d.getFullYear();
+        if(dd<10) dd='0'+dd
+        if(mm<10) mm='0'+mm
+        return yyyy+'-'+mm+'-'+dd;
+
+    }
+
+    $.post(api+'/api/agg_date',{project:'',start:todayMin,end:today},function(d){
+        console.log('agg_Date aa',d);
+        var objDate = {
+            twitter:{},
+            news: {}
+        }
+        for (var i=0;i<arrDate.length;i++){
+            objDate.twitter[arrDate[i]] = 0;
+            objDate.news[arrDate[i]] = 0;
+        }
+        if (d.type=='success'){
+            for (var i=0;i<arrDate.length;i++){
+                for (var j=0;j<d.message.twitter.length;j++){
+                    if(d.message.twitter[j].key_as_string.indexOf(arrDate[i])>-1){
+                        objDate.twitter[arrDate[i]] = d.message.twitter[j].doc_count;
+                    }
+                }
+                for (var j=0;j<d.message.news.length;j++){
+                    if(d.message.news[j].key_as_string.indexOf(arrDate[i])>-1){
+                        objDate.news[arrDate[i]] = d.message.news[j].doc_count;
+                    }
+                }
             }
         }
+        console.log('objDate',objDate,arrDate)
+        //drawWordCloud(e.message);
+        areaChart(objDate,arrDate);
     });
+    function getDay(dInp){
+        var d = new Date(dInp);
+        var weekday = new Array(7);
+        weekday[0] =  "Sun";
+        weekday[1] = "Mon";
+        weekday[2] = "Tue";
+        weekday[3] = "Wed";
+        weekday[4] = "Thu";
+        weekday[5] = "Fri";
+        weekday[6] = "Sat";
+        return weekday[d.getDay()];
+    }
+
+    function areaChart (objDate,arrDate){
+        var x = ['x'],xOth = [],xOthAll=[];
+        for (var i=0;i<arrDate.length;i++){
+            x.push(getDay(arrDate[i]))
+        }
+        var types = {}
+        for (var key in objDate){
+            xOth = []
+            xOth.push(key);
+            for (var key2 in objDate[key]){
+                xOth.push(objDate[key][key2])
+            }
+            xOthAll.push(xOth)
+            types[key] = 'area-spline'
+        }
+        console.log('xOth',xOthAll)
+        console.log('x',x)
+        var cols = [];
+        cols.push(x)
+        for (var i=0;i<xOthAll.length;i++){
+            cols.push(xOthAll[i])
+        }
+
+        console.log(cols)
+        var area_stacked_chart = c3.generate({
+            bindto: '#voicetracker',
+            size: { height: 300, width: $('#voicetracker').parent().width()-20 },
+            color: {
+                pattern: ['#1E88E5', '#F4511E']
+            },
+            point: {
+                r: 4
+            },
+            data: {
+                x:'x',
+                columns: cols /*[
+                    ['x', 'sun', 'sat','asd', 'sss', 'asddd', 'www'],
+                    ['data1', 300, 350, 300, 0, 0, 120],
+                    ['data2', 130, 100, 140, 200, 150, 50]
+                ]*/,
+                types: types /*{
+                    data1: 'area-spline',
+                    data2: 'area-spline'
+                }*/
+                //groups: [['data1', 'data2']]
+            },
+            axis: {
+                x: {
+                    type: 'category'
+                }
+            },
+            grid: {
+                y: {
+                    show: true
+                }
+            }
+        });
+    }
+
 
     // Pie chart
     // ------------------------------
 
     // Generate chart
     $.post(api+'/api/sentiment',{project:''},function(e,r){
-        console.log('aa',e)
+        console.log('sentiment',e)
         console.log('ab',r)
         drawPie(e.message);
     });
-    drawPie();
+    //drawPie();
     function drawPie(data){
         var arr = [[],[],[]];
         for(var i=0;i<data.length;i++){
@@ -125,9 +225,10 @@ $(function() {
             else if (data[i].key=='neutral') arr[2] = ['Neutral',data[i].doc_count]
         }
         console.log('pieChart',arr)
+        console.log($('#sentiment').parent().width())
         var pie_chart = c3.generate({
             bindto: '#sentiment',
-            size: { width: $('#voicetracker').width()-5},
+            size: { width: $('#sentiment').parent().width()-5},
             color: {
                 pattern: ['#1EAAF2', '#E72565', '#159688']
             },
@@ -159,30 +260,72 @@ $(function() {
     // ------------------------------
 
     // Generate chart
-    var bar_chart = c3.generate({
-        bindto: '#barchart',
-        size: { height: 300 },
-        data: {
-            columns: [
-                ['data1', 30, 200, 100, 400, 150, 250],
-                ['data2', 130, 100, 140, 200, 150, 50]
-            ],
-            type: 'bar'
-        },
-        color: {
-            pattern: ['#2196F3', '#FF9800', '#4CAF50']
-        },
-        bar: {
-            width: {
-                ratio: 0.5
-            }
-        },
-        grid: {
-            y: {
-                show: true
-            }
-        }
+    $.post(api+'/api/sums_up',{project:''},function(e,r){
+        console.log('aa',e)
+        console.log('ab',r)
+        barChart(e.message);
     });
+    barChart();
+    function barChart(par){
+        var cols = ['SocialVoice'];
+        for (var key in par){
+            cols.push(par[key])
+        }
+        var bar_chart = c3.generate({
+            bindto: '#barchart',
+            size: { height: 300 },
+            data: {
+                columns: [
+                    cols
+                ],
+                colors: {
+                    SocialVoice: function(d) {
+                        //console.log('data',d)
+                        var col = '#00ff00'
+                        if (d.index==0) col = '#3D5B97'
+                        else if (d.index==1) col = '#5AADED'
+                        else if (d.index==2) col = '#E72565'
+                        else if (d.index == 3) col = '#FBB543'
+                        return col;
+                    }
+                },
+                type: 'bar'
+            },
+            legend: {
+           show: false
+        },
+
+            bar: {
+                width: {
+                    ratio: 0.5
+                }
+            },
+            grid: {
+                y: {
+                    show: true
+                }
+            }
+        });
+        var arrayOfPics = [
+          "assets/images/usight/facebook_small.png",
+          "assets/images/usight/twitter_small.png",
+          "assets/images/usight/ig_small.png",
+          "assets/images/usight/newssite_small.png"
+        ];
+        d3.selectAll('#barchart .c3-axis-x .tick')
+          .each(function(d,i){
+            // clear tick contents and replace with image
+            var self = d3.select(this);
+            self.selectAll("*").remove();
+            self.append('image')
+              .attr("xlink:href", arrayOfPics[i])
+              .attr("x", -10)
+              .attr("y", 5)
+              .attr("width", 20)
+              .attr("height", 20);
+        });
+    }
+
 
     // Initialize lightbox
     $('[data-popup=lightbox]').fancybox({
@@ -190,35 +333,7 @@ $(function() {
     });
 
 
-$('.select').select2();
-$('.daterange-ranges').daterangepicker(
-    {
-        startDate: moment().subtract('days', 29),
-        endDate: moment(),
-        minDate: '01/01/2012',
-        maxDate: '12/31/2019',
-        dateLimit: { days: 60 },
-        ranges: {
-            'Today': [moment(), moment()],
-            'Yesterday': [moment().subtract('days', 1), moment().subtract('days', 1)],
-            'Last 7 Days': [moment().subtract('days', 6), moment()],
-            'Last 30 Days': [moment().subtract('days', 29), moment()],
-            'This Month': [moment().startOf('month'), moment().endOf('month')],
-            'Last Month': [moment().subtract('month', 1).startOf('month'), moment().subtract('month', 1).endOf('month')]
-        },
-        opens: 'left',
-        applyClass: 'btn-small bg-slate-600',
-        cancelClass: 'btn-small btn-default'
-    },
-    function(start, end) {
-        $('.daterange-ranges span').html(start.format('MMMM D, YYYY') + ' &nbsp; - &nbsp; ' + end.format('MMMM D, YYYY'));
-    }
-);
-// Display date format
-$('.daterange-ranges span').html(moment().subtract('days', 29).format('MMMM D, YYYY') + ' &nbsp; - &nbsp; ' + moment().format('MMMM D, YYYY'));
-$(".styled, .multiselect-container input").uniform({
-    radioClass: 'choice'
-});
+
 
 
 

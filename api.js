@@ -37,7 +37,7 @@ module.exports = function(esClient){
         console.log(req.body)
         var exclude = ['co','amp','com','go','ga','https']
         var searchBody = {
-            index: 'twitter_classify',
+            index: 'twitter_classify,bukalapak',
             //type: req.body.project,
             body:{
               "size":0,
@@ -122,7 +122,167 @@ module.exports = function(esClient){
             }
             else{
                 var r = resp.aggregations.sentiment.buckets;
-                res.send({type:'success',message:r})
+                var searchBody = {
+                    index: 'bukalapak',
+                    //type: req.body.project,
+                    body:{
+                      "size":0,
+                      "aggs": {
+                        "sentiment": {
+                          "terms": {
+                            "field": "sentiment_bl"
+                            }
+                        }
+                    }
+                    }
+                }
+                if (req.body.project != ''){
+                    searchBody['type'] = req.body.project
+                }
+                esClient.search(searchBody,
+                function(err2,resp2){
+                    if(err2){
+                        res.send({type:'error',message:err2})
+                    }
+                    else{
+                        var r2 = resp2.aggregations.sentiment.buckets;
+                        var rSend = [];
+                        for (var i=0;i<r.length;i++){
+                            for (var j=0;j<r2.length;j++){
+                                if (r[i].key == r2[j].key) r[i].doc_count = r[i].doc_count+r2[j].doc_count
+                            }
+                        }
+                        res.send({type:'success',message:r})
+                    }
+                });
+            }
+        });
+    });
+    app.post('/agg_date', function (req, res) {
+        console.log(req.body)
+        var retval = {facebook:0,twitter:0,instagram:0,news:0}
+        var searchBody = {
+            index: 'twitter_classify',
+            //type: req.body.project,
+            body:{
+                "query": {
+                    "range" : {
+                        "date" : {
+                            "gte" : req.body.start+" 00:00:00",
+                            "lte" : req.body.end+" 23:59:59",
+                            "boost" : 2.0
+                        }
+                    }
+                },
+                "size":0,
+                "aggs" : {
+                    "agg_date" : {
+                        "date_histogram" : {
+                            "field" : "date",
+                            "interval" : "1d"
+                        }
+                    }
+                }
+            }
+        }
+        if (req.body.project != ''){
+            searchBody['type'] = req.body.project
+        }
+        esClient.search(searchBody,function(err,resp){
+            if(err){
+                console.log(errorSearch);
+                res.send({type:'error',message:err})
+            }
+            else{
+                var r = resp.aggregations.agg_date.buckets;
+                retval.twitter = r;
+                var searchBody = {
+                    index: 'bukalapak',
+                    //type: req.body.project,
+                    body:{
+                        "query": {
+                            "range" : {
+                                "rdate" : {
+                                    "gte" : req.body.start+" 00:00:00",
+                                    "lte" : req.body.end+" 23:59:59",
+                                    "boost" : 2.0
+                                }
+                            }
+                        },
+                        "size":0,
+                        "aggs" : {
+                            "agg_date" : {
+                                "date_histogram" : {
+                                    "field" : "rdate",
+                                    "interval" : "1d"
+                                }
+                            }
+                        }
+                    }
+                }
+                if (req.body.project != ''){
+                    searchBody['type'] = req.body.project
+                }
+                esClient.search(searchBody,function(err2,resp2){
+                    if(err2){
+
+                        res.send({type:'error',message:err2})
+                    }
+                    else{
+                        var r = resp2.aggregations.agg_date.buckets;
+                        retval.news = r;
+                        res.send({type:'success',message:retval})
+                    }
+                });
+                //res.send({type:'success',message:{twitter:r}})
+            }
+        });
+    });
+    app.post('/sums_up', function (req, res) {
+        console.log(req.body)
+        var retval = {
+            facebook:0,
+            twitter:0,
+            instagram:0,
+            news:0
+        }
+        var searchBody = {
+            index: 'twitter_classify',
+            //type: req.body.project,
+            body:{
+                "size":0
+            }
+        }
+        if (req.body.project != ''){
+            searchBody['type'] = req.body.project
+        }
+        esClient.search(searchBody,function(err,resp){
+            if(err){
+                console.log(errorSearch);
+                res.send({type:'error',message:err})
+            }
+            else{
+                retval.twitter = resp.hits.total
+                var searchBody = {
+                    index: 'bukalapak',
+                    //type: req.body.project,
+                    body:{
+                        "size":0
+                    }
+                }
+                if (req.body.project != ''){
+                    searchBody['type'] = req.body.project
+                }
+                esClient.search(searchBody,function(err2,resp2){
+                    if(err){
+                        console.log(errorSearch);
+                        res.send({type:'error',message:err})
+                    }
+                    else{
+                        retval.news = resp2.hits.total
+                        res.send({type:'success',message:retval})
+                    }
+                });
             }
         });
     });
