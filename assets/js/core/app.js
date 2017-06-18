@@ -17,8 +17,8 @@ $(window).on('load', function() {
 
 
 $(function() {
-    localStorage.setItem("publicApi", "http://localhost:1500")
-    //localStorage.setItem("publicApi", "http://128.199.88.206")
+    //localStorage.setItem("publicApi", "http://localhost:1500")
+    localStorage.setItem("publicApi", "http://128.199.88.206")
 
     // Disable CSS transitions on page load
     $('body').addClass('no-transitions');
