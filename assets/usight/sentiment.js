@@ -10,10 +10,96 @@
  * ---------------------------------------------------------------------------- */
 
 $(function() {
+    var api = localStorage.publicApi;
+    var trackerName = [];
+    var startPeriod = moment().subtract('days', 6).format('YYYY-MM-DD'), endPeriod = moment().format('YYYY-MM-DD');
+    var source = [];
+    var sentiment = [];
+    console.log('period',$('#period').html())
+
+    function setAllSource(ch){
+        if (ch){
+            $('#sourcetwitter').prop('checked',true);
+            $('#sourcetwitter').parent().addClass('checked');
+            $('#sourcefacebook').prop('checked',true);
+            $('#sourcefacebook').parent().addClass('checked');
+            $('#sourceinstagram').prop('checked',true);
+            $('#sourceinstagram').parent().addClass('checked');
+            $('#sourcenews').prop('checked',true);
+            $('#sourcenews').parent().addClass('checked');
+            $('#sourceplaystore').prop('checked',true);
+            $('#sourceplaystore').parent().addClass('checked');
+        }
+        else {
+            $('#sourcetwitter').prop('checked',false);
+            $('#sourcetwitter').parent().removeClass('checked');
+            $('#sourcefacebook').prop('checked',false);
+            $('#sourcefacebook').parent().removeClass('checked');
+            $('#sourceinstagram').prop('checked',false);
+            $('#sourceinstagram').parent().removeClass('checked');
+            $('#sourcenews').prop('checked',false);
+            $('#sourcenews').parent().removeClass('checked');
+            $('#sourceplaystore').prop('checked',false);
+            $('#sourceplaystore').parent().removeClass('checked');
+        }
+
+    }
+    $('#sourceall').on('change',function(ev){
+        ev.preventDefault();
+        setAllSource(this.checked);
+        queryData();
+    })
+    $('#sourcetwitter').on('change',function(ev){
+        ev.preventDefault();
+        $('#sourcetwitter').prop('checked',this.checked);
+        queryData();
+    })
+    $('#sourcefacebook').on('change',function(ev){
+        ev.preventDefault();
+        $('#sourcefacebook').prop('checked',this.checked);
+        queryData();
+    })
+    $('#sourceinstagram').on('change',function(ev){
+        ev.preventDefault();
+        $('#sourceinstagram').prop('checked',this.checked);
+        queryData();
+    })
+    $('#sourcenews').on('change',function(ev){
+        ev.preventDefault();
+        $('#sourcenews').prop('checked',this.checked);
+        queryData();
+    })
+    $('#sourceplaystore').on('change',function(ev){
+        ev.preventDefault();
+        $('#sourceplaystore').prop('checked',this.checked);
+        queryData();
+    })
+    $('#senPos').on('change',function(ev){
+        ev.preventDefault();
+        $('#senPos').prop('checked',this.checked);
+        queryData();
+    })
+    $('#senNeg').on('change',function(ev){
+        ev.preventDefault();
+        $('#senNeg').prop('checked',this.checked);
+        queryData();
+    })
+    $('#senNeu').on('change',function(ev){
+        ev.preventDefault();
+        $('#senNeu').prop('checked',this.checked);
+        queryData();
+    })
+    $('#sourceall').prop('checked',true);
+    setAllSource(true);
+    function queryBySource(){
+
+    }
     /*
         START WORDCLOUD BLOCK
         https://bl.ocks.org/blockspring/847a40e23f68d6d7e8b5
     */
+
+
     console.log('sentiment')
     var range_all_sliders = {
         'min': [     0 ],
@@ -33,30 +119,12 @@ $(function() {
             density: 3
         }
     });
-    var text_string = "Of course that’s your contention. You’re a first year grad student. You just got finished readin’ some Marxian historian, Pete Garrison probably. You’re gonna be convinced of that ’til next month when you get to James Lemon and then you’re gonna be talkin’ about how the economies of Virginia and Pennsylvania were entrepreneurial and capitalist way back in 1740. That’s gonna last until next year. You’re gonna be in here regurgitating Gordon Wood, talkin’ about, you know, the Pre-Revolutionary utopia and the capital-forming effects of military mobilization… ‘Wood drastically underestimates the impact of social distinctions predicated upon wealth, especially inherited wealth.’ You got that from Vickers, Work in Essex County, page 98, right? Yeah, I read that, too. Were you gonna plagiarize the whole thing for us? Do you have any thoughts of your own on this matter? Or do you, is that your thing? You come into a bar. You read some obscure passage and then pretend, you pawn it off as your own, as your own idea just to impress some girls and embarrass my friend? See, the sad thing about a guy like you is in 50 years, you’re gonna start doin’ some thinkin’ on your own and you’re gonna come up with the fact that there are two certainties in life. One: don’t do that. And two: you dropped a hundred and fifty grand on a fuckin’ education you coulda got for a dollar fifty in late charges at the public library.";
 
-      drawWordCloud(text_string);
 
-      function drawWordCloud(text_string){
-        var common = "poop,i,me,my,myself,we,us,our,ours,ourselves,you,your,yours,yourself,yourselves,he,him,his,himself,she,her,hers,herself,it,its,itself,they,them,their,theirs,themselves,what,which,who,whom,whose,this,that,these,those,am,is,are,was,were,be,been,being,have,has,had,having,do,does,did,doing,will,would,should,can,could,ought,i'm,you're,he's,she's,it's,we're,they're,i've,you've,we've,they've,i'd,you'd,he'd,she'd,we'd,they'd,i'll,you'll,he'll,she'll,we'll,they'll,isn't,aren't,wasn't,weren't,hasn't,haven't,hadn't,doesn't,don't,didn't,won't,wouldn't,shan't,shouldn't,can't,cannot,couldn't,mustn't,let's,that's,who's,what's,here's,there's,when's,where's,why's,how's,a,an,the,and,but,if,or,because,as,until,while,of,at,by,for,with,about,against,between,into,through,during,before,after,above,below,to,from,up,upon,down,in,out,on,off,over,under,again,further,then,once,here,there,when,where,why,how,all,any,both,each,few,more,most,other,some,such,no,nor,not,only,own,same,so,than,too,very,say,says,said,shall";
+    function drawWordCloud(word_count){
 
-        var word_count = {};
-
-        var words = text_string.split(/[ '\-\(\)\*":;\[\]|{},.!?]+/);
-          if (words.length == 1){
-            word_count[words[0]] = 1;
-          } else {
-            words.forEach(function(word){
-              var word = word.toLowerCase();
-              if (word != "" && common.indexOf(word)==-1 && word.length>1){
-                if (word_count[word]){
-                  word_count[word]++;
-                } else {
-                  word_count[word] = 1;
-                }
-              }
-            })
-          }
+        console.log('wc',word_count)
+        $('#wc').html('')
 
         var svg_location = "#wc";
         var width = $('#wc').width();
@@ -67,43 +135,40 @@ $(function() {
         var word_entries = d3.entries(word_count);
 
         var xScale = d3.scale.linear()
-           .domain([0, d3.max(word_entries, function(d) {
-              return d.value;
-            })
-           ])
-           .range([10,100]);
+        .domain([0, d3.max(word_entries, function(d) {return d.value;})])
+        .range([10,100]);
 
         d3.layout.cloud().size([width, height])
-          .timeInterval(20)
-          .words(word_entries)
-          .fontSize(function(d) { return xScale(+d.value); })
-          .text(function(d) { return d.key; })
-          .rotate(function() { return ~~(Math.random() * 2) * 90; })
-          .font("Impact")
-          .on("end", draw)
-          .start();
+        .timeInterval(20)
+        .words(word_entries)
+        .fontSize(function(d) { return xScale(+d.value); })
+        .text(function(d) { return d.key; })
+        .rotate(function() { return ~~(Math.random() * 2) * 90; })
+        .font("Times New Roman")
+        .on("end", draw)
+        .start();
 
         function draw(words) {
-          d3.select(svg_location).append("svg")
-              .attr("width", width)
-              .attr("height", height)
+            d3.select(svg_location).append("svg")
+            .attr("width", width)
+            .attr("height", height)
             .append("g")
-              .attr("transform", "translate(" + [width >> 1, height >> 1] + ")")
+            .attr("transform", "translate(" + [width >> 1, height >> 1] + ")")
             .selectAll("text")
-              .data(words)
+            .data(words)
             .enter().append("text")
-              .style("font-size", function(d) { return xScale(d.value) + "px"; })
-              .style("font-family", "Impact")
-              .style("fill", function(d, i) { return fill(i); })
-              .attr("text-anchor", "middle")
-              .attr("transform", function(d) {
+            .style("font-size", function(d) { return xScale(d.value) + "px"; })
+            .style("font-family", "Times New Roman")
+            .style("fill", function(d, i) { return fill(i); })
+            .attr("text-anchor", "middle")
+            .attr("transform", function(d) {
                 return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
-              })
-              .text(function(d) { return d.key; });
+            })
+            .text(function(d) { return d.key; });
         }
 
         d3.layout.cloud().stop();
-      }
+    }
 
     /* END WORDCLOUD BLOCK*/
 
@@ -139,22 +204,27 @@ $(function() {
     // Pie chart
     // ------------------------------
 
-    // Generate chart
-    var pie_chart = c3.generate({
-        bindto: '#sentiment',
-        //size: { width: $('#voicetracker').width()-5},
-        color: {
-            pattern: ['#1EAAF2', '#E72565', '#159688']
-        },
-        data: {
-            columns: [
-                ['Positive', 30],
-                ['Negative', 120],
-                ['Neutral', 120]
-            ],
-            type : 'pie'
+    function drawPie(data){
+        var arr = [[],[],[]];
+        for(var i=0;i<data.length;i++){
+            if (data[i].key=='positive') arr[0] = ['Positive',data[i].doc_count]
+            else if (data[i].key=='negative') arr[1] = ['Negative',data[i].doc_count]
+            else if (data[i].key=='neutral') arr[2] = ['Neutral',data[i].doc_count]
         }
-    });
+        console.log('pieChart',arr)
+        console.log($('#sentiment').parent().width())
+        var pie_chart = c3.generate({
+            bindto: '#sentiment',
+            size: { width: $('#sentiment').parent().width()-5},
+            color: {
+                pattern: ['#1EAAF2', '#E72565', '#159688']
+            },
+            data: {
+                columns: arr,
+                type : 'pie'
+            }
+        });
+    }
 
     // Choropleth map
 
@@ -162,30 +232,67 @@ $(function() {
     // ------------------------------
 
     // Generate chart
-    var bar_chart = c3.generate({
-        bindto: '#barchart',
-        size: { height: 300 },
-        data: {
-            columns: [
-                ['data1', 30, 200, 100, 400, 150, 250],
-                ['data2', 130, 100, 140, 200, 150, 50]
-            ],
-            type: 'bar'
-        },
-        color: {
-            pattern: ['#2196F3', '#FF9800', '#4CAF50']
-        },
-        bar: {
-            width: {
-                ratio: 0.5
-            }
-        },
-        grid: {
-            y: {
-                show: true
-            }
+    function barChart(par){
+        var cols = ['SocialVoice'];
+        for (var key in par){
+            cols.push(par[key])
         }
-    });
+        var bar_chart = c3.generate({
+            bindto: '#barchart',
+            size: { height: 300 },
+            data: {
+                columns: [
+                    cols
+                ],
+                colors: {
+                    SocialVoice: function(d) {
+                        //console.log('data',d)
+                        var col = '#00ff00'
+                        if (d.index==0) col = '#3D5B97'
+                        else if (d.index==1) col = '#5AADED'
+                        else if (d.index==2) col = '#E72565'
+                        else if (d.index == 3) col = '#FBB543'
+                        return col;
+                    }
+                },
+                type: 'bar'
+            },
+            legend: {
+                show: false
+            },
+
+            bar: {
+                width: {
+                    ratio: 0.5
+                }
+            },
+            grid: {
+                y: {
+                    show: true
+                }
+            }
+        });
+        var arrayOfPics = [
+            "assets/images/usight/facebook_small.png",
+            "assets/images/usight/twitter_small.png",
+            "assets/images/usight/ig_small.png",
+            "assets/images/usight/newssite_small.png",
+            "assets/images/usight/google_play_small.png"
+        ];
+        d3.selectAll('#barchart .c3-axis-x .tick')
+        .each(function(d,i){
+            // clear tick contents and replace with image
+            var self = d3.select(this);
+            self.selectAll("*").remove();
+            self.append('image')
+            .attr("xlink:href", arrayOfPics[i])
+            .attr("x", -10)
+            .attr("y", 5)
+            .attr("width", 20)
+            .attr("height", 20);
+        });
+    }
+
 
     // Bullet charts
     // ------------------------------
@@ -722,11 +829,23 @@ $(function() {
         padding: 3
     });
 
+var old_values = [];
+var period = $(".select");
+period.select2();
+period.on('change',function(event){
+    var values = [];
+    $(event.currentTarget).find("option:selected").each(function(i, selected){
+      values[i] = $(selected).text();
+    });
+    console.log("selected values: ", values);
+    trackerName = values;
+    queryData();
 
-$('.select').select2();
+})
+
 $('.daterange-ranges').daterangepicker(
     {
-        startDate: moment().subtract('days', 29),
+        startDate: moment().subtract('days', 6),
         endDate: moment(),
         minDate: '01/01/2012',
         maxDate: '12/31/2019',
@@ -745,14 +864,72 @@ $('.daterange-ranges').daterangepicker(
     },
     function(start, end) {
         $('.daterange-ranges span').html(start.format('MMMM D, YYYY') + ' &nbsp; - &nbsp; ' + end.format('MMMM D, YYYY'));
+        //console.log('dateRange',start.format('YYYY-MM-DD'),end.format('YYYY-MM-DD'));
+        startPeriod = start.format('YYYY-MM-DD');
+        endPeriod = end.format('YYYY-MM-DD');
+        queryData();
     }
 );
 // Display date format
-$('.daterange-ranges span').html(moment().subtract('days', 29).format('MMMM D, YYYY') + ' &nbsp; - &nbsp; ' + moment().format('MMMM D, YYYY'));
+$('.daterange-ranges span').html(moment().subtract('days', 6).format('MMMM D, YYYY') + ' &nbsp; - &nbsp; ' + moment().format('MMMM D, YYYY'));
 $(".styled, .multiselect-container input").uniform({
     radioClass: 'choice'
 });
 
+queryData()
+function queryData(){
+    /*$('#sourcetwitter').prop('checked',true);
+    $('#sourcetwitter').parent().addClass('checked');
+    $('#sourcefacebook').prop('checked',true);
+    $('#sourcefacebook').parent().addClass('checked');
+    $('#sourceinstagram').prop('checked',true);
+    $('#sourceinstagram').parent().addClass('checked');
+    $('#sourcenews').prop('checked',true);
+    $('#sourcenews').parent().addClass('checked');
+    $('#sourceplaystore').prop('checked',true);
+    $('#sourceplaystore').parent().addClass('checked');*/
+    source = []
+    sentiment = []
+    if ($('#sourcetwitter').prop('checked')==true) source.push('twitter')
+    if ($('#sourcefacebook').prop('checked')==true) source.push('facebook')
+    if ($('#sourceinstagram').prop('checked')==true) source.push('instagram')
+    if ($('#sourcenews').prop('checked')==true) source.push('news')
+    if ($('#sourceplaystore').prop('checked')==true) source.push('playstore')
+    if ($('#senPos').prop('checked')==true) sentiment.push('positive')
+    if ($('#senNeg').prop('checked')==true) sentiment.push('negative')
+    if ($('#senNeu').prop('checked')==true) sentiment.push('neutral')
+
+    console.log('QUERY DATA:')
+    console.log('source',source);
+    console.log('period',startPeriod,endPeriod)
+    console.log('tracker',trackerName)
+    console.log('sentiment',sentiment)
+    var body = {
+        source: source,
+        startPeriod: startPeriod,
+        endPeriod: endPeriod,
+        trackerName: trackerName,
+        sentiment: sentiment,
+        max:40
+    }
+    console.log('sendBody',body)
+    $.post(api+'/api-sentiment/wordCloud',body,function(e,r){
+        console.log('aa',e)
+        console.log('ab',r)
+        drawWordCloud(e.message);
+    });
+    $.post(api+'/api-sentiment/sentiment',body,function(e,r){
+        console.log('sentiment',e)
+        console.log('ab',r)
+        drawPie(e.message);
+    });
+    $.post(api+'/api-sentiment/sums_up',body,function(e,r){
+        console.log('aa',e)
+        console.log('ab',r)
+        barChart(e.message);
+    });
+
+}
 
 
 });

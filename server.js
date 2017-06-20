@@ -26,6 +26,7 @@ else {
     app.set('views', __dirname + '/template' );
     app.set('view engine', 'ejs');
     var api = require('./api')(esClient);
+    var apiSentiment = require('./api-sentiment')(esClient);
 
     app.use(function(req, res, next) {
         res.setHeader('Access-Control-Allow-Origin', '*');
@@ -34,6 +35,7 @@ else {
         next();
     });
     app.use('/api', api);
+    app.use('/api-sentiment', apiSentiment);
 
     app.get('/', function (req, res) {
         res.render('login');

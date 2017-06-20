@@ -94,24 +94,18 @@
                             <div class="form-group form-group-material">
                                 <label class=" has-margin"><b>Tracker Name</b></label>
                                 <select data-placeholder="select tracker.." multiple="multiple" class="select">
-                                    <optgroup label="Mountain Time Zone">
-                                        <option value="AZ">Arizona</option>
-                                        <option value="CO">Colorado</option>
-                                        <option value="ID">Idaho</option>
-                                        <option value="WY">Wyoming</option>
-                                    </optgroup>
-                                    <optgroup label="Central Time Zone">
-                                        <option value="AL">Alabama</option>
-                                        <option value="IA">Iowa</option>
-                                        <option value="KS">Kansas</option>
-                                        <option value="KY">Kentucky</option>
-                                    </optgroup>
-                                    <optgroup label="Eastern Time Zone">
-                                        <option value="CT">Connecticut</option>
-                                        <option value="FL">Florida</option>
-                                        <option value="MA">Massachusetts</option>
-                                        <option value="WV">West Virginia</option>
-                                    </optgroup>
+                                    <option value="Blanja">Blanja</option>
+                                    <option value="Elevania">Elevania</option>
+                                    <option value="Shopee">Shopee</option>
+                                    <option value="Tokopedia">Tokopedia</option>
+                                    <option value="Lazada">Lazada</option>
+                                    <option value="Blibli">Blibli</option>
+                                    <option value="MatahariMall">MatahariMall</option>
+                                    <option value="Olx">Olx</option>
+                                    <option value="Tiket">Tiket.com</option>
+                                    <option value="Berrybenka">Berrybenka</option>
+                                    <option value="Zalora">Zalora</option>
+                                    <option value="Bhineka">Bhineka</option>
                                 </select>
                             </div>
                         </div>
@@ -128,28 +122,28 @@
                                 <label class="display-block text-semibold"><b>Sources</b></label>
 
                                 <label class="checkbox-inline">
-                                    <input type="checkbox" class="styled">
+                                    <input id="sourcetwitter" type="checkbox" class="styled" name="twitter" value="twitter">
                                     Twitter
                                 </label>
 
                                 <label class="checkbox-inline">
-                                    <input type="checkbox" class="styled">
+                                    <input id="sourcefacebook" type="checkbox" class="styled" name="facebook" value="facebook">
                                     Facebook
                                 </label>
                                 <label class="checkbox-inline">
-                                    <input type="checkbox" class="styled">
+                                    <input id="sourceinstagram" type="checkbox" class="styled" name="instagram" value="instagram">
                                     Instagram
                                 </label>
                                 <label class="checkbox-inline">
-                                    <input type="checkbox" class="styled">
+                                    <input id="sourcenews" type="checkbox" class="styled" name="news" value="news">
                                     News
                                 </label>
                                 <label class="checkbox-inline">
-                                    <input type="checkbox" class="styled">
+                                    <input id="sourceplaystore" type="checkbox" class="styled" name="playstore" value="playstore">
                                     Playstore
                                 </label>
-                                <label class="checkbox-inline">
-                                    <input type="checkbox" class="styled">
+                                <label  class="checkbox-inline">
+                                    <input id="sourceall" type="checkbox" class="styled" name="all" value="all">
                                     All
                                 </label>
                             </div>
@@ -183,7 +177,7 @@
 									<div class="row" style="padding-left:20px">
 										<div class="checkbox">
 											<label>
-												<input type="checkbox" class="styled" checked="checked">
+												<input type="checkbox" class="styled" checked="checked" id="senPos">
 												Positive (3500)
 											</label>
 										</div>
@@ -191,7 +185,7 @@
 									<div class="row" style="padding-left:20px">
 										<div class="checkbox">
 											<label>
-												<input type="checkbox" class="styled" checked="checked">
+												<input type="checkbox" class="styled" checked="checked" id="senNeg">
 												Negative (3500)
 											</label>
 										</div>
@@ -199,7 +193,7 @@
 									<div class="row" style="padding-left:20px">
 										<div class="checkbox">
 											<label>
-												<input type="checkbox" class="styled" checked="checked">
+												<input type="checkbox" class="styled" checked="checked" id="senNeu">
 												Neutral (3500)
 											</label>
 										</div>

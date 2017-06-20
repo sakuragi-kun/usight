@@ -1,29 +1,29 @@
 /* ------------------------------------------------------------------------------
- *
- *  # Dashboard configuration
- *
- *  Demo dashboard configuration. Contains charts and plugin inits
- *
- *  Version: 1.0
- *  Latest update: Aug 1, 2015
- *
- * ---------------------------------------------------------------------------- */
+*
+*  # Dashboard configuration
+*
+*  Demo dashboard configuration. Contains charts and plugin inits
+*
+*  Version: 1.0
+*  Latest update: Aug 1, 2015
+*
+* ---------------------------------------------------------------------------- */
 
 $(function() {
     var api = localStorage.publicApi;
     /*
-        START WORDCLOUD BLOCK
-        https://bl.ocks.org/blockspring/847a40e23f68d6d7e8b5
+    START WORDCLOUD BLOCK
+    https://bl.ocks.org/blockspring/847a40e23f68d6d7e8b5
     */
     $.post(api+'/api/wordCloud',{project:'',max:50,total:150},function(e,r){
-          console.log('aa',e)
-          console.log('ab',r)
-          drawWordCloud(e.message);
-      });
+        console.log('aa',e)
+        console.log('ab',r)
+        drawWordCloud(e.message);
+    });
 
-      function drawWordCloud(word_count){
+    function drawWordCloud(word_count){
 
-         console.log('wc',word_count)
+        console.log('wc',word_count)
 
         var svg_location = "#wc";
         var width = $('#wc').width();
@@ -34,43 +34,40 @@ $(function() {
         var word_entries = d3.entries(word_count);
 
         var xScale = d3.scale.linear()
-           .domain([0, d3.max(word_entries, function(d) {
-              return d.value;
-            })
-           ])
-           .range([10,100]);
+        .domain([0, d3.max(word_entries, function(d) {return d.value;})])
+        .range([10,100]);
 
         d3.layout.cloud().size([width, height])
-          .timeInterval(20)
-          .words(word_entries)
-          .fontSize(function(d) { return xScale(+d.value); })
-          .text(function(d) { return d.key; })
-          .rotate(function() { return ~~(Math.random() * 2) * 90; })
-          .font("Times New Roman")
-          .on("end", draw)
-          .start();
+        .timeInterval(20)
+        .words(word_entries)
+        .fontSize(function(d) { return xScale(+d.value); })
+        .text(function(d) { return d.key; })
+        .rotate(function() { return ~~(Math.random() * 2) * 90; })
+        .font("Times New Roman")
+        .on("end", draw)
+        .start();
 
         function draw(words) {
-          d3.select(svg_location).append("svg")
-              .attr("width", width)
-              .attr("height", height)
+            d3.select(svg_location).append("svg")
+            .attr("width", width)
+            .attr("height", height)
             .append("g")
-              .attr("transform", "translate(" + [width >> 1, height >> 1] + ")")
+            .attr("transform", "translate(" + [width >> 1, height >> 1] + ")")
             .selectAll("text")
-              .data(words)
+            .data(words)
             .enter().append("text")
-              .style("font-size", function(d) { return xScale(d.value) + "px"; })
-              .style("font-family", "Times New Roman")
-              .style("fill", function(d, i) { return fill(i); })
-              .attr("text-anchor", "middle")
-              .attr("transform", function(d) {
+            .style("font-size", function(d) { return xScale(d.value) + "px"; })
+            .style("font-family", "Times New Roman")
+            .style("fill", function(d, i) { return fill(i); })
+            .attr("text-anchor", "middle")
+            .attr("transform", function(d) {
                 return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
-              })
-              .text(function(d) { return d.key; });
+            })
+            .text(function(d) { return d.key; });
         }
 
         d3.layout.cloud().stop();
-      }
+    }
 
     /* END WORDCLOUD BLOCK*/
 
@@ -85,11 +82,7 @@ $(function() {
     todayMin.setDate(todayMin.getDate() - 7);
     todayMin = dateString(todayMin);
     var arrDate = []
-    /*for (var i=0;i<7;i++){
-        var x = new Date()
-        x.setDate(x.getDate() - i);
-        arrDate.push(dateString(x))
-    }*/
+
     for (var i=7;0<i;i--){
         var x = new Date()
         x.setDate(x.getDate() - (i-1));
@@ -292,8 +285,8 @@ $(function() {
                 type: 'bar'
             },
             legend: {
-           show: false
-        },
+                show: false
+            },
 
             bar: {
                 width: {
@@ -307,22 +300,22 @@ $(function() {
             }
         });
         var arrayOfPics = [
-          "assets/images/usight/facebook_small.png",
-          "assets/images/usight/twitter_small.png",
-          "assets/images/usight/ig_small.png",
-          "assets/images/usight/newssite_small.png"
+            "assets/images/usight/facebook_small.png",
+            "assets/images/usight/twitter_small.png",
+            "assets/images/usight/ig_small.png",
+            "assets/images/usight/newssite_small.png"
         ];
         d3.selectAll('#barchart .c3-axis-x .tick')
-          .each(function(d,i){
+        .each(function(d,i){
             // clear tick contents and replace with image
             var self = d3.select(this);
             self.selectAll("*").remove();
             self.append('image')
-              .attr("xlink:href", arrayOfPics[i])
-              .attr("x", -10)
-              .attr("y", 5)
-              .attr("width", 20)
-              .attr("height", 20);
+            .attr("xlink:href", arrayOfPics[i])
+            .attr("x", -10)
+            .attr("y", 5)
+            .attr("width", 20)
+            .attr("height", 20);
         });
     }
 
@@ -331,10 +324,4 @@ $(function() {
     $('[data-popup=lightbox]').fancybox({
         padding: 3
     });
-
-
-
-
-
-
 });
