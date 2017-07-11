@@ -15,6 +15,7 @@ $(function() {
     var startPeriod = moment().subtract('days', 6).format('YYYY-MM-DD'), endPeriod = moment().format('YYYY-MM-DD');
     var source = [];
     var sentiment = [];
+    var from = 0, size = 10;
     console.log('period',$('#period').html())
 
     function setAllSource(ch){
@@ -293,6 +294,118 @@ $(function() {
         });
     }
 
+    //Timeline
+    //timeline([]);
+    function timeline(data){
+        var html = [],html_twitter = [], html_news = [],html_facebook = [], html_instagram = [], html_apps = [];
+        for (var i=0;i<data.length;i++){
+            html.push('<div class="col-lg-12" >'+
+                '<div class="panel border-left-lg border-left-primary timeline-content">'+
+                    '<div class="panel-body">'+
+                        '<div class="row">'+
+                            '<ul class="media-list">'+
+                                '<li class="media">'+
+                                    '<div class="media-left">'+
+                                        '<img src="'+data[i].img+'" class="img-circle img-xs" alt="">'+
+                                    '</div>'+
+                                    '<div class="media-body">'+
+                                        //'<a href="#">',
+                                            data[i].user_name+
+                                            '<img src="assets/images/usight/twitter_small.png" alt="" style="margin-left:10px">'+
+                                            '<span class="label label-primary label-rounded" style="margin-left:10px">'+data[i].sentiment+'</span>'+
+                                            '<span class="media-annotation pull-right">'+data[i].dt+'</span>'+
+                                        //'</a>',
+                                        '<span class="display-block text-muted">'+data[i].text+'</span>'+
+                                    '</div>'+
+                                '</li>'+
+                            '</ul>'+
+                        '</div>'+
+                    '</div>'+
+                    '<div class="panel-footer panel-footer-condensed">'+
+                        '<div class="heading-elements">'+
+                            '<ul class="list-inline list-inline-condensed heading-text pull-left">'+
+                                '<li><a href="javascript:void(0)" ><i class="icon-trash position-left"></i> Delete</a></li>'+
+                                '<li><a href="javascript:void(0)" ><i class="icon-link position-left"></i> Go to Link</a></li>'+
+                                '<li class="dropdown">'+
+                                    '<a href="#" class="text-default dropdown-toggle" data-toggle="dropdown"><i class="icon-menu7"></i> <span class="caret"></span></a>'+
+                                    '<ul class="dropdown-menu dropdown-menu-right">'+
+                                        '<li><a href="#"><i class="icon-alarm-add"></i> Check in</a></li>'+
+                                        '<li><a href="#"><i class="icon-attachment"></i> Attach screenshot</a></li>'+
+                                        '<li><a href="#"><i class="icon-rotate-ccw2"></i> Reassign</a></li>'+
+                                        '<li class="divider"></li>'+
+                                        '<li><a href="#"><i class="icon-pencil7"></i> Edit task</a></li>'+
+                                        '<li><a href="#"><i class="icon-cross2"></i> Remove</a></li>'+
+                                    '</ul>'+
+                                '</li>'+
+                            '</ul>'+
+                        '</div>'+
+                    '</div>'+
+                '</div>'+
+            '</div>');
+            if (data[i].source == 'twitter') html_twitter.push(html[i])
+            else if (data[i].source == 'news') html_news.push(html[i])
+            else if (data[i].source == 'facebook') html_facebook.push(html[i])
+            else if (data[i].source == 'instagram') html_instagram.push(html[i])
+            else if (data[i].source == 'apps') html_apps.push(html[i])
+        };
+        if (html.length==0) html.push('Data not Available');
+        if (html_twitter.length==0) html_twitter.push('Data not Available');
+        if (html_news.length==0) html_news.push('Data not Available');
+        if (html_facebook.length==0) html_facebook.push('Data not Available');
+        if (html_instagram.length==0) html_instagram.push('Data not Available');
+        if (html_apps.length==0) html_apps.push('Data not Available');
+
+
+        /*html.push('<div class="col-lg-12" >',
+            '<div class="panel border-left-lg border-left-primary timeline-content">',
+                '<div class="panel-body">',
+                    '<div class="row">',
+                        '<ul class="media-list">',
+                            '<li class="media">',
+                                '<div class="media-left">',
+                                    '<img src="https://pbs.twimg.com/profile_images/879285363109277696/7hipZxYT_400x400.jpg" class="img-circle img-xs" alt="">',
+                                '</div>',
+                                '<div class="media-body">',
+                                    //'<a href="#">',
+                                        'Sukma Wanto',
+                                        '<img src="assets/images/usight/twitter_small.png" alt="" style="margin-left:10px">',
+                                        '<span class="label label-primary label-rounded" style="margin-left:10px">Positive</span>',
+                                        '<span class="media-annotation pull-right">4 Mei 2017 10:14:58</span>',
+                                    //'</a>',
+                                    '<span class="display-block text-muted">Percuma Diskon Juga, kl orderan cancel terus uang dicopet sebagian</span>',
+                                '</div>',
+                            '</li>',
+                        '</ul>',
+                    '</div>',
+                '</div>',
+                '<div class="panel-footer panel-footer-condensed">',
+                    '<div class="heading-elements">',
+                        '<ul class="list-inline list-inline-condensed heading-text pull-left">',
+                            '<li><a href="javascript:void(0)" ><i class="icon-trash position-left"></i> Delete</a></li>',
+                            '<li><a href="javascript:void(0)" ><i class="icon-link position-left"></i> Go to Link</a></li>',
+                            '<li class="dropdown">',
+                                '<a href="#" class="text-default dropdown-toggle" data-toggle="dropdown"><i class="icon-menu7"></i> <span class="caret"></span></a>',
+                                '<ul class="dropdown-menu dropdown-menu-right">',
+                                    '<li><a href="#"><i class="icon-alarm-add"></i> Check in</a></li>',
+                                    '<li><a href="#"><i class="icon-attachment"></i> Attach screenshot</a></li>',
+                                    '<li><a href="#"><i class="icon-rotate-ccw2"></i> Reassign</a></li>',
+                                    '<li class="divider"></li>',
+                                    '<li><a href="#"><i class="icon-pencil7"></i> Edit task</a></li>',
+                                    '<li><a href="#"><i class="icon-cross2"></i> Remove</a></li>',
+                                '</ul>',
+                            '</li>',
+                        '</ul>',
+                    '</div>',
+                '</div>',
+            '</div>',
+        '</div>');*/
+        $('#allData').append(html.join(''))
+        $('#twitterData').append(html_twitter.join(''))
+        $('#newsData').append(html_news.join(''))
+        $('#facebookData').append(html_facebook.join(''))
+        $('#instagramData').append(html_instagram.join(''))
+        $('#appsData').append(html_apps.join(''))
+    }
 
     // Bullet charts
     // ------------------------------
@@ -655,6 +768,7 @@ $(function() {
 
 
 
+
         // Basic setup
         // ------------------------------
 
@@ -927,6 +1041,18 @@ function queryData(){
         console.log('aa',e)
         console.log('ab',r)
         barChart(e.message);
+    });
+    $('#allData').html('');
+    $.post(api+'/api-sentiment/timeline',body,function(e,r){
+        console.log('timeline',e)
+        console.log('timeline',r)
+        $('#allData').html('');
+        $('#twitterData').html('');
+        $('#facebookData').html('');
+        $('#newsData').html('');
+        $('#instagramData').html('');
+        $('#appsData').html('');
+        timeline(e.message);
     });
 
 }

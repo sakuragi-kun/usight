@@ -129,7 +129,7 @@ module.exports = function(esClient){
                     esClient.search(body,
                     function(err,resp){
                         if(err){
-                            console.log(errorSearch);
+                            console.log(err);
                             callback(err,'');
                         }
                         else{
@@ -525,7 +525,7 @@ module.exports = function(esClient){
                     esClient.search(body,
                     function(err,resp){
                         if(err){
-                            console.log(errorSearch);
+                            console.log(err);
                             callback(err,'');
                         }
                         else{
@@ -555,7 +555,169 @@ module.exports = function(esClient){
 
 
     });
+    app.post('/timeline', function (req, res) {
+        console.log(req.body)
+        var exclude = ['co','amp','com','go','ga','https']
+        var retval = [];
+        var source = req.body.source?req.body.source:[]
+        async.parallel([
+            function(callback) {
+                if (source.indexOf('twitter')>-1){
+                    var sentiment = [];
+                    if (req.body.sentiment){
+                        sentiment = req.body.sentiment.length==0?['positive','negative','neutral']:req.body.sentiment;
+                    }
+                    else {
+                        sentiment = ['positive','negative','neutral']
+                    }
 
+                    var body = {
+                        index: 'twitter_classify',
+                        body:{
+                          "from":req.body.from,
+                          "size":req.body.size,
+                          "query": {
+                              "constant_score" : {
+                                  "filter" : {
+                                      "bool": {
+                                          "must": [
+                                              {
+                                                  "range" : {
+                                                      "date" : {
+                                                          "gte" : req.body.startPeriod+" 00:00:00",
+                                                          "lte" : req.body.endPeriod+" 23:59:59"
+                                                      }
+                                                  }
+                                              },
+                                              {
+                                                  "terms": {
+                                                      "sentiment": sentiment
+                                                  }
+                                              }
+                                          ]
+                                      }
+                                  }
+                              }
+                          }
+                        }
+                    };
+                    if (req.body.trackerName){
+                        if (req.body.trackerName.length>0){
+                            body['type'] = req.body.trackerName.join(',');
+                        }
+                    }
+                    //console.log(JSON.stringify(body,null,2))
+                    esClient.search(body,
+                    function(err,resp){
+                        if(err){
+                            console.log(err);
+                            callback(err,'');
+                        }
+                        else{
+                            var a = [];
+                            for (var i=0;i<resp.hits.hits.length;i++){
+                                a.push({
+                                    img:resp.hits.hits[i]._source.user.profile_image_url,
+                                    user_name: resp.hits.hits[i]._source.user.name,
+                                    screen_name: resp.hits.hits[i]._source.user.screen_name,
+                                    user_id: resp.hits.hits[i]._source.user.id,
+                                    sentiment: resp.hits.hits[i]._source.sentiment,
+                                    dt: resp.hits.hits[i]._source.date,
+                                    text: resp.hits.hits[i]._source.text,
+                                    id: resp.hits.hits[i]._id,
+                                    url: 'https://twitter.com/statuses/'+resp.hits.hits[i]._source.id,
+                                    source: 'twitter'
+                                })
+                            }
+                            callback(null,a);
+                        }
+                    });
+                }
+                else callback(null, []);
+            },
+            function(callback) {
+                if (source.indexOf('news')>-1){
+                    var sentiment = [];
+                    if (req.body.sentiment){
+                        sentiment = req.body.sentiment.length==0?['positive','negative','neutral']:req.body.sentiment;
+                    }
+                    else {
+                        sentiment = ['positive','negative','neutral']
+                    }
+
+                    var body = {
+                        index: 'bukalapak',
+                        body:{
+                            "from":req.body.from,
+                            "size":req.body.size,
+                            "query": {
+                              "constant_score" : {
+                                  "filter" : {
+                                      "bool": {
+                                          "must": [
+                                              {
+                                                  "range" : {
+                                                      "rdate" : {
+                                                          "gte" : req.body.startPeriod+" 00:00:00",
+                                                          "lte" : req.body.endPeriod+" 23:59:59"
+                                                      }
+                                                  }
+                                              },
+                                              {
+                                                  "terms": {
+                                                      "sentiment_bl": sentiment
+                                                  }
+                                              }
+                                          ]
+                                      }
+                                  }
+                              }
+                          }
+                        }
+                    };
+                    esClient.search(body,
+                    function(err,resp){
+                        if(err){
+                            console.log(errorSearch);
+                            callback(err,'');
+                        }
+                        else{
+                            var a = [];
+                            for (var i=0;i<resp.hits.hits.length;i++){
+                                a.push({
+                                    img: resp.hits.hits[i]._source.seller_avatar,
+                                    user_name: resp.hits.hits[i]._source.review.sender_name,
+                                    screen_name: resp.hits.hits[i]._source.review.sender_name,
+                                    user_id: resp.hits.hits[i]._source.review.sender_id,
+                                    sentiment: resp.hits.hits[i]._source.sentiment_bl,
+                                    dt: resp.hits.hits[i]._source.rdate,
+                                    text: resp.hits.hits[i]._source.review.body,
+                                    id: resp.hits.hits[i]._id,
+                                    url:resp.hits.hits[i]._source.url,
+                                    source:'news'
+                                })
+                            }
+                            callback(null,a);
+                        }
+                    });
+                }
+                else callback(null, []);
+            }
+        ],
+        function(err, results) {
+            //console.log(results);
+            var r = [];
+            for (var i=0;i<results.length;i++){
+                for (var j=0;j<results[i].length;j++){
+                    r.push(results[i][j])
+                }
+            }
+
+
+            res.send({type:'success',message:r})
+        });
+
+    });
 
 
     return app;

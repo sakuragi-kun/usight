@@ -117,7 +117,7 @@ module.exports = function(esClient){
         esClient.search(searchBody,
         function(err,resp){
             if(err){
-                console.log(errorSearch);
+                console.log(err);
                 res.send({type:'error',message:err})
             }
             else{
@@ -190,7 +190,7 @@ module.exports = function(esClient){
         }
         esClient.search(searchBody,function(err,resp){
             if(err){
-                console.log(errorSearch);
+                console.log(err);
                 res.send({type:'error',message:err})
             }
             else{
@@ -274,8 +274,8 @@ module.exports = function(esClient){
                     searchBody['type'] = req.body.project
                 }
                 esClient.search(searchBody,function(err2,resp2){
-                    if(err){
-                        console.log(errorSearch);
+                    if(err2){
+                        console.log(err2);
                         res.send({type:'error',message:err})
                     }
                     else{
