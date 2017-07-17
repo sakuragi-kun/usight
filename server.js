@@ -4,11 +4,14 @@ const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 var cluster = require('cluster');
-var elasticsearch = require('elasticsearch');
+var elasticsearch = require('elasticsearch'), fs = require('fs');
 const esClient = new elasticsearch.Client({
   host: '128.199.88.206:7200'
   //log: 'trace'
 });
+var sendmail = require('sendmail')();
+var nodemailer = require('nodemailer');
+var mailerConfig = JSON.parse(fs.readFileSync(__dirname+'/mailerConfig.json','utf-8'));
 
 if (cluster.isMaster) {
     for (var i = 0; i < 4; i++) {
@@ -20,6 +23,7 @@ if (cluster.isMaster) {
     });
 }
 else {
+    var transporter = nodemailer.createTransport(mailerConfig.smtp);
     app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
     app.use(bodyParser.json()); // support json encoded bodies
     app.use('/assets', express.static(__dirname + '/assets'));
@@ -57,8 +61,14 @@ else {
         if (stat == true) res.send({status:'success'})
         else res.send({status:'error'})
     });
-	app.get('/login', function (req, res) {
+    app.get('/login', function (req, res) {
         res.render('login');
+    });
+    app.get('/account', function (req, res) {
+        res.render('create_account');
+    });
+    app.get('/account_success', function (req, res) {
+        res.render('create_account_success');
     });
     app.get('/home', function (req, res) {
         res.render('home');
@@ -77,6 +87,32 @@ else {
     });
     app.get('/404', function (req, res) {
         res.render('error_404');
+    });
+    app.get('/sendMail', function (req, res) {
+        /*sendmail({
+            from: 'no-reply@usight.id',
+            to: 'danuyanpermadi@gmail.com',
+            subject: 'test sendmail',
+            html: 'Mail of test sendmail ',
+          }, function(err, reply) {
+            console.log(err && err.stack);
+            console.dir(reply);
+            res.send({msg:reply,error:err})
+        });*/
+        var mailOptions = mailerConfig.mail
+        mailOptions.to = 'danu@alutechno.io';
+        mailOptions.subject = 'Email Example';
+        mailOptions.html = '<b>Hello world ✔</b>';
+
+        transporter.sendMail(mailOptions, function(error, info){
+            if(error){
+                console.log(error);
+                res.json({yo: 'error'});
+            }else{
+                console.log('Message sent: ' + info.response);
+                res.json({yo: info.response});
+            };
+        });
     });
 
 

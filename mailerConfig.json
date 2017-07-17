@@ -1,0 +1,18 @@
+{
+    "smtp": {
+        "host": "smtp.gmail.com",
+        "port": 587,
+        "secure": false,
+        "auth": {
+            "user": "",
+            "pass": ""
+        }
+    },
+    "mail":{
+        "from": "info@usight.id",
+        "to": "",
+        "subject": "",
+        "html": ""
+    }
+
+}

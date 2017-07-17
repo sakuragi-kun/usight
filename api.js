@@ -57,7 +57,7 @@ module.exports = function(esClient){
         esClient.search(searchBody,
         function(err,resp){
             if(err){
-                console.log(errorSearch);
+                console.log(err);
                 res.send({type:'error',message:err})
             }
             else{
@@ -258,7 +258,7 @@ module.exports = function(esClient){
         }
         esClient.search(searchBody,function(err,resp){
             if(err){
-                console.log(errorSearch);
+                console.log(err);
                 res.send({type:'error',message:err})
             }
             else{
