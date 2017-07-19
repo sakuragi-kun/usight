@@ -4,8 +4,8 @@
         "port": 587,
         "secure": false,
         "auth": {
-            "user": "",
-            "pass": ""
+            "user": "danuyanpermadi@gmail.com",
+            "pass": "!@#QWEasd1"
         }
     },
     "mail":{

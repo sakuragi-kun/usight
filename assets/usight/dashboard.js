@@ -11,11 +11,32 @@
 
 $(function() {
     var api = localStorage.publicApi;
+    var displayname = JSON.parse(localStorage.getItem('usight-user')).firstname+ ' ' + JSON.parse(localStorage.getItem('usight-user')).lastname
+    var keyword = []
+    var tracker = JSON.parse(localStorage.getItem('usight-tracker'))
+    console.log('tw1',tracker)
+
+    try{
+        for (var i=0;i<tracker.length;i++){
+            for (var j=0;j<tracker[i].twitter.mainkeyword.split(',').length;j++){
+                try{
+                    if (tracker[i].twitter.mainkeyword.split(',')[j].length>0) keyword.push(tracker[i].twitter.mainkeyword.split(',')[j])
+                }
+                catch(e){}
+            }
+        }
+        //keyword = JSON.parse(localStorage.getItem('usight-tracker')).twitter.mainkeyword
+    }
+    catch(e){}
+    console.log('tw2',keyword)
+
+    $('#hello').html('Hello '+displayname+'!');
+
     /*
     START WORDCLOUD BLOCK
     https://bl.ocks.org/blockspring/847a40e23f68d6d7e8b5
     */
-    $.post(api+'/api/wordCloud',{project:'',max:50,total:150},function(e,r){
+    $.post(api+'/api/wordCloud',{project:'',max:50,total:150,keywords:keyword.join(',')},function(e,r){
         console.log('aa',e)
         console.log('ab',r)
         drawWordCloud(e.message);

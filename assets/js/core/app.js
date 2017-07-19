@@ -19,9 +19,24 @@ $(window).on('load', function() {
 $(function() {
     //localStorage.setItem("publicApi", "http://localhost:1500")
     localStorage.setItem("publicApi", "http://128.199.88.206")
+    try{
+        var displayname = JSON.parse(localStorage.getItem('usight-user')).firstname+ ' ' + JSON.parse(localStorage.getItem('usight-user')).lastname
+        $('#userName').html(displayname);
+
+    }
+    catch(e){}
+    $('#logout').on('click',function(ev){
+        ev.preventDefault();
+        console.log('logout');
+        localStorage.removeItem('usight-tracker');
+        localStorage.removeItem('usight-user');
+        window.location.replace("/");
+
+    })
 
     // Disable CSS transitions on page load
     $('body').addClass('no-transitions');
+
 
 
 

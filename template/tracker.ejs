@@ -39,9 +39,11 @@
 	<script type="text/javascript" src="assets/js/plugins/maps/jvectormap/map_files/countries/germany.js"></script>
 	<script type="text/javascript" src="assets/demo_data/maps/vector/gdp_demo_data.js"></script>
 	<script type="text/javascript" src="assets/js/plugins/media/fancybox.min.js"></script>
+	<script type="text/javascript" src="assets/js/plugins/notifications/pnotify.min.js"></script>
+	<script type="text/javascript" src="assets/js/plugins/notifications/bootbox.min.js"></script>
 
 	<script type="text/javascript" src="assets/js/core/app.js"></script>
-
+	<script type="text/javascript" src="assets/usight/tracker.js"></script>
 	<!-- /theme JS files -->
 
 </head>
@@ -66,12 +68,381 @@
 
 					<div class="row" style="padding-left:10px;padding-right:10px">
                         <h4>TRACKER SETTING</h4>
-                        <button type="button" class="btn btn-default"><a href="tracker-add"><i class="icon-plus3 position-left"></i> Create New Tracker</a></button>
+						<h4 id="addHeader"><b>CREATE NEW TRACKER</b></h4>
+						<h4 id="updateHeader"><b>EDIT TRACKER</b></h4>
+                        <button type="button" class="btn btn-default" id="listAddTracker"><a href="javascript:void(0)"><i class="icon-plus3 position-left"></i> Create New Tracker</a></button>
 
 					</div>
 					<!-- Main charts -->
+					<div class="row" style="padding-left:10px;padding-right:10px;padding-top:20px" id="addTrackerForm">
+						<div class="panel panel-flat">
+							<div class="row center" style="padding-left:10px;padding-right:10px;padding-top:20px">
+								<div class="col-md-2">&nbsp;</div>
 
-					<div class="row" style="padding-left:10px;padding-right:10px;padding-top:20px">
+								<div class="col-md-8">
+									<div class="form-group">
+										<label class="control-label col-lg-2"><b>Tracker Name <span class="text-danger">*</span></b></label>
+										<div class="col-lg-10">
+											<div class="row">
+												<div class="col-md-6">
+													<input type="text" class="form-control" id="trackerName">
+													<span class="help-block text-center"><i>The Name displayed on the dashboard for analysis</i></span>
+												</div>
+
+												<div class="col-md-6">
+													<button type="button" class="btn btn-primary" id="saveTracker">Save</button>
+													<button type="button" class="btn btn-primary" id="updateTracker">Save</button>
+													<button type="button" class="btn btn-primary"><a href="/tracker" style="color:white">Cancel</a></button>
+												</div>
+											</div>
+										</div>
+									</div>
+
+								</div>
+								<div class="col-md-2">&nbsp;</div>
+							</div>
+							<div class="row" style="padding-left:10px;padding-right:10px;padding-top:20px" >
+								<div class="col-md-12">
+									<div class="tabbable">
+										<ul class="nav nav-tabs nav-tabs-bottom nav-justified">
+											<li class="active"><a href="#bottom-justified-tab1" data-toggle="tab" aria-expanded="false">Keyword</a></li>
+											<li class=""><a href="#bottom-justified-tab2" data-toggle="tab" aria-expanded="true">Source</a></li>
+											<li class=""><a href="#bottom-justified-tab3" data-toggle="tab" aria-expanded="true">General Info</a></li>
+
+										</ul>
+
+										<div class="tab-content">
+											<div class="tab-pane active" id="bottom-justified-tab1">
+												<div class="row" style="padding-left:10px;padding-right:10px;padding-top:20px">
+													<div class="col-md-4">
+														<h5><b>New Keyword <span class="text-danger">*</span></b></h5>
+														<p>The main keyword of phrase for which your project will collect the data</p>
+													</div>
+													<div class="col-md-4">
+														<h5><b>Required Keyword</b></h5>
+														<p>Additional keywords; <b>Each of wich must appear</b> in order for the mention to be collected</p>
+													</div>
+													<div class="col-md-3">
+														<h5><b>Exclude Keyword </b></h5>
+														<p>Additional keywords; <b>None of wich can appear</b> if the mention is to be collected</p>
+													</div>
+												</div>
+												<div class="row" style="padding-left:10px;padding-right:10px;padding-top:20px">
+													<div class="col-md-4">
+														<div class="row">
+															<div class="col-md-12">
+																<input type="text" class="form-control" id="mainKeyword">
+																<span class="help-block text-center"><i>Not case sensitive, separate keywords with a comma</i></span>
+															</div>
+														</div>
+														<!--<div class="row">
+															<div class="col-md-12">
+																<input type="text" class="form-control">
+																<span class="help-block text-center"><i>Not case sensitive</i></span>
+															</div>
+														</div>
+														<div class="row">
+															<div class="col-md-12">
+																<input type="text" class="form-control">
+																<span class="help-block text-center"><i>Not case sensitive</i></span>
+															</div>
+														</div>-->
+													</div>
+													<div class="col-md-4">
+														<div class="row">
+															<div class="col-md-12">
+																<input type="text" class="form-control" id="requiredKeyword">
+																<span class="help-block text-center"><i>Separate keywords with a comma</i></span>
+															</div>
+														</div>
+														<!--<div class="row">
+															<div class="col-md-12">
+																<input type="text" class="form-control">
+																<span class="help-block text-center"><i>Separate keywords with a comma</i></span>
+															</div>
+														</div>
+														<div class="row">
+															<div class="col-md-12">
+																<input type="text" class="form-control">
+																<span class="help-block text-center"><i>Separate keywords with a comma</i></span>
+															</div>
+														</div>-->
+													</div>
+													<div class="col-md-4">
+														<div class="row">
+															<div class="col-md-10">
+																<input type="text" class="form-control" id="excludeKeyword">
+																<span class="help-block text-center"><i>Separate keywords with a comma</i></span>
+
+															</div>
+															<!--<div class="col-md-2">
+																<button type="button" class="btn border-warning text-warning-600 btn-flat btn-icon btn-rounded btn-xs"><i class="icon-cross2"></i></button>
+															</div>-->
+														</div>
+														<!--<div class="row">
+															<div class="col-md-10">
+																<input type="text" class="form-control">
+																<span class="help-block text-center"><i>Separate keywords with a comma</i></span>
+
+															</div>
+															<div class="col-md-2">
+																<button type="button" class="btn border-warning text-warning-600 btn-flat btn-icon btn-rounded btn-xs"><i class="icon-cross2"></i></button>
+															</div>
+														</div>
+														<div class="row">
+															<div class="col-md-10">
+																<input type="text" class="form-control">
+																<span class="help-block text-center"><i>Separate keywords with a comma</i></span>
+
+															</div>
+															<div class="col-md-2">
+																<button type="button" class="btn border-warning text-warning-600 btn-flat btn-icon btn-rounded btn-xs"><i class="icon-cross2"></i></button>
+															</div>
+														</div>-->
+													</div>
+
+
+												</div>
+
+												<!--<div class="row" style="padding-left:10px;padding-right:10px;padding-top:20px">
+													<div class="col-md-2">
+														<button type="button" class="btn btn-default"><a href="tracker-add"><i class="icon-plus3 position-left"></i> Add More Keyword</a></button>
+													</div>
+												</div>-->
+
+												<div class="row" style="padding-left:10px;padding-right:10px;padding-top:20px;padding-bottom:20px">
+													<div class="col-md-5">
+														<div class="form-group">
+															<label class="control-label col-lg-2"><b>Language</b></label>
+															<div class="col-lg-10">
+																<select name="select" class="form-control" id="lang">
+																	<option value="opt1">Indonesia</option>
+																	<option value="opt2">English</option>
+																</select>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+
+											<div class="tab-pane " id="bottom-justified-tab2">
+												<div class="row" style="padding-top:20px;padding-bottom:20px;padding-left:20px;padding-right:20px">
+													<div class="col-md-6">
+														<h5><b>Online Source <span class="text-danger">*</span></b></h5>
+														<br>
+														<div class="row">
+															<div class="col-md-2">
+																<h6>Twitter</h6>
+															</div>
+															<div class="col-md-8">
+																<input type="text" class="form-control" placeholder="@Username" id="twitterId">
+															</div>
+														</div>
+														<div class="row">
+															<div class="col-md-2">
+																<h6>Facebook</h6>
+															</div>
+															<div class="col-md-8">
+																<input type="text" class="form-control" placeholder="Fanpage name / Fanpage URL" id="facebookId">
+															</div>
+														</div>
+														<div class="row">
+															<div class="col-md-2">
+																<h6>Instagram</h6>
+															</div>
+															<div class="col-md-8">
+																<input type="text" class="form-control" placeholder="Username" disabled="true">
+															</div>
+														</div>
+														<div class="row">
+															<div class="col-md-2">
+																<h6>App Store</h6>
+															</div>
+															<div class="col-md-8">
+																<input type="text" class="form-control" placeholder="App ID" disabled="true">
+															</div>
+														</div>
+														<div class="row">
+															<div class="col-md-2">
+																<h6>News Site</h6>
+															</div>
+															<div class="col-md-8">
+																<div class="panel panel-body border-top-primary text-left">
+																	<div class="row">
+																		<div class="col-md-4">
+																			<div class="checkbox">
+																				<label>
+																					<div class="checker">
+																						<span><input type="checkbox" class="styled" name="c1" disabled="true"></span>
+																					</div>
+																					All
+																				</label>
+																			</div>
+																		</div>
+																		<div class="col-md-4">
+																			<div class="checkbox">
+																				<label>
+																					<div class="checker"><span><input type="checkbox" class="styled" disabled="true"></span></div>
+																					Detik.com
+																				</label>
+																			</div>
+																		</div>
+																		<div class="col-md-4">
+																			<div class="checkbox">
+																				<label>
+																					<div class="checker"><span><input type="checkbox" class="styled" disabled="true"></span></div>
+																					CNN Indo
+																				</label>
+																			</div>
+																		</div>
+																	</div>
+																	<div class="row">
+																		<div class="col-md-4">
+																			<div class="checkbox">
+																				<label>
+																					<div class="checker"><span><input type="checkbox" class="styled" disabled="true"></span></div>
+																					BBC News
+																				</label>
+																			</div>
+																		</div>
+																		<div class="col-md-4">
+																			<div class="checkbox">
+																				<label>
+																					<div class="checker"><span><input type="checkbox" class="styled" disabled="true"></span></div>
+																					Kompas
+																				</label>
+																			</div>
+																		</div>
+																		<div class="col-md-4">
+																			<div class="checkbox">
+																				<label>
+																					<div class="checker"><span><input type="checkbox" class="styled" disabled="true"></span></div>
+																					Republika
+																				</label>
+																			</div>
+																		</div>
+																	</div>
+																	<div class="row">
+																		<div class="col-md-4">
+																			<div class="checkbox">
+																				<label>
+																					<div class="checker"><span><input type="checkbox" class="styled" disabled="true"></span></div>
+																					Okezone
+																				</label>
+																			</div>
+																		</div>
+																		<div class="col-md-4">
+																			<div class="checkbox">
+																				<label>
+																					<div class="checker"><span><input type="checkbox" class="styled" disabled="true"></span></div>
+																					Viva News
+																				</label>
+																			</div>
+																		</div>
+																		<div class="col-md-4">
+																			<div class="checkbox">
+																				<label>
+																					<div class="checker"><span><input type="checkbox" class="styled" disabled="true"></span></div>
+																					Pikiran Rakyat
+																				</label>
+																			</div>
+																		</div>
+																	</div>
+																	<div class="row">
+																		<div class="col-md-4">
+																			<div class="checkbox">
+																				<label>
+																					<div class="checker"><span><input type="checkbox" class="styled" disabled="true"></span></div>
+																					Suara Merdeka
+																				</label>
+																			</div>
+																		</div>
+																		<div class="col-md-4">
+																			<div class="checkbox">
+																				<label>
+																					<div class="checker"><span><input type="checkbox" class="styled"></span></div>
+																					Tribun News
+																				</label>
+																			</div>
+																		</div>
+																		<div class="col-md-4">
+																			<div class="checkbox">
+																				<label>
+																					<div class="checker"><span><input type="checkbox" class="styled"></span></div>
+																					Antara News
+																				</label>
+																			</div>
+																		</div>
+																	</div>
+																	<div class="row">
+																		<div class="col-md-4">
+																			<div class="checkbox">
+																				<label>
+																					<div class="checker"><span><input type="checkbox" class="styled"></span></div>
+																					Liputan 6
+																				</label>
+																			</div>
+																		</div>
+																		<div class="col-md-4">
+																			<div class="checkbox">
+																				<label>
+																					<div class="checker"><span><input type="checkbox" class="styled"></span></div>
+																					Metro TV News
+																				</label>
+																			</div>
+																		</div>
+																		<div class="col-md-4">
+																			<div class="checkbox">
+																				<label>
+																					<div class="checker"><span><input type="checkbox" class="styled"></span></div>
+																					Kapan Lagi
+																				</label>
+																			</div>
+																		</div>
+																	</div>
+
+																</div>
+															</div>
+														</div>
+													</div>
+													<div class="col-md-6">
+														<h5><b>Offline Source</b></h5>
+														<br>
+														<div class="row">
+															<div class="col-md-12">
+																<div class="uploader">
+																	<input type="file" class="file-styled-primary" disabled="true">
+																	<span class="filename" style="user-select: none;">No file selected</span>
+																	<!--<span class="action btn bg-blue" style="user-select: none;">Choose File</span>-->
+																</div>
+																<span class="help-block"><i>*) Format .xls/.xlsx/.doc/.docx/.csv</i></span>
+															</div>
+														</div>
+													</div>
+
+												</div>
+											</div>
+
+											<div class="tab-pane" id="bottom-justified-tab3">
+												<h4><b><i>UNDER CONSTRUCTION</i></b></h4>
+											</div>
+
+
+										</div>
+									</div>
+								</div>
+							</div>
+
+
+
+
+						</div>
+
+
+					</div>
+
+
+					<div class="row" style="padding-left:10px;padding-right:10px;padding-top:20px" id="listTracker">
                         <div class="panel panel-flat">
     						<div class="panel-heading">
     							<h5 class="panel-title">Tracker List</h5>
@@ -96,7 +467,7 @@
     									<th class="text-center">Actions</th>
     								</tr>
     							</thead>
-    							<tbody>
+    							<tbody id="listBody">
     								<tr>
     									<td>
                                             <div class="checker border-primary text-primary"><span class="checked"><input type="checkbox" class="styled" checked="checked"></span></div>

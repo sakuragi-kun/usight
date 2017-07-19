@@ -4,7 +4,7 @@
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>Limitless - Responsive Web Application Kit by Eugene Kopyov</title>
+	<title>USight</title>
 
 	<!-- Global stylesheets -->
 	<link href="https://fonts.googleapis.com/css?family=Roboto:400,300,100,500,700,900" rel="stylesheet" type="text/css">
@@ -25,11 +25,15 @@
 
 	<!-- Theme JS files -->
 	<script type="text/javascript" src="assets/js/core/app.js"></script>
+	<script type="text/javascript" src="assets/usight/account.js"></script>
 	<!-- /theme JS files -->
 
 </head>
 
 <body class="login-container">
+
+	<!-- Main navbar -->
+	<!-- /main navbar -->
 
 
 	<!-- Page container -->
@@ -40,42 +44,29 @@
 
 			<!-- Main content -->
 			<div class="content-wrapper">
-
-				<!-- Content area -->
-				<div class="content">
-
-					<!-- Error title -->
-					<div class="text-center content-group">
-						<h1 class="error-title">404</h1>
-						<h5>Oops, an error has occurred. Page not found!</h5>
+				<div class="content" >
+					<div class="text-center" style="padding-top:10vh">
+						<img src="assets/images/usight/usight-logo.png" alt="" width="400vh">
+						<h2>You have successfully confirmed your email, please relogin</h2>
 					</div>
-					<!-- /error title -->
 
-
-					<!-- Error content -->
-
-					<div class="row">
-						<div class="col-sm-5">
-							&nbsp;
-						</div>
-						<div class="col-sm-2">
-							<a href="/" class="btn btn-primary btn-block content-group"><i class="icon-circle-left2 position-left"></i> Go to login page</a>
-						</div>
-						<div class="col-sm-5">
-							&nbsp;
-						</div>
-
-
+					<!-- Simple login form -->
+					<!--<form action="index.html">-->
+					<br />
+					<div class="text-center">
+						<h2><a href="login">Go to login page</a></h2>
 					</div>
-					<!-- /error wrapper -->
+					<!--</form>-->
+					<!-- /simple login form -->
 
 
 					<!-- Footer -->
-					<%- include footer.ejs %>
+					<div class="footer text-muted text-center">
+						&copy; 2017. <a href="#">USight - AMOEBA</a> by <a href="http://digitalamoeba.id/the-amoebas/" target="_blank">Digital Amoeba</a>
+					</div>
 					<!-- /footer -->
 
 				</div>
-				<!-- /content area -->
 
 			</div>
 			<!-- /main content -->

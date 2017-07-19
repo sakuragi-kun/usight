@@ -1,4 +1,4 @@
-var express = require('express');
+var express = require('express'), async = require('async');
 module.exports = function(esClient){
     var app = express.Router();
 
@@ -34,9 +34,181 @@ module.exports = function(esClient){
     });
 
     app.post('/wordCloud', function (req, res) {
-        console.log(req.body)
+        console.log('word-cloud',req.body)
         var exclude = ['co','amp','com','go','ga','https']
-        var searchBody = {
+        var d1 = new Date();
+        var d2=  new Date();
+        d2.setDate(d2.getDate() - 14);
+        d1s = [
+            d1.getFullYear(),
+            ('0' + (d1.getMonth() + 1)).slice(-2),
+            ('0' + d1.getDate()).slice(-2)
+        ].join('-')
+        d2s = [
+            d2.getFullYear(),
+            ('0' + (d2.getMonth() + 1)).slice(-2),
+            ('0' + d2.getDate()).slice(-2)
+        ].join('-');
+        k = []
+        console.log(req.body.keywords)
+        if (req.body.keywords.length>0){
+            for(var i=0;i<req.body.keywords.split(',').length;i++){
+                console.log('kk',req.body.keywords.split(',')[i])
+                //console.log('kk2',req.body.keywords.split(',')[i].trim)
+                k.push({
+                    "term": {
+                        "keywords": req.body.keywords.split(',')[i].trim()
+                    }
+                })
+            }
+        }
+
+
+        async.parallel([
+            function(callback) {
+                if (k.length==0) callback('nokeyword',[])
+                else {
+                    var sentiment = [];
+                    var body = {
+                        index: 'twitter_classify',
+                        body:{
+                          "size":0,
+                          "query": {
+                              "constant_score" : {
+                                  "filter" : {
+                                      "bool": {
+                                          "must": [
+                                              {
+                                                  "range" : {
+                                                      "date" : {
+                                                          "gte" : d2s+" 00:00:00",
+                                                          "lte" : d1s+" 23:59:59"
+                                                      }
+                                                  }
+                                              }
+                                          ],
+                                          "should": k
+                                      }
+                                  }
+                              }
+                          },
+                          "aggs": {
+                            "wordcloud": {
+                              "terms": {
+                                "field": "keywords",
+                                "size": req.body.total
+                                }
+                            }
+                          }
+                        }
+                    };
+
+                    console.log(JSON.stringify(body,null,2))
+                    esClient.search(body,
+                    function(err,resp){
+                        if(err){
+                            console.log(err);
+                            callback(err,[]);
+                        }
+                        else{
+                            callback(null,resp.aggregations.wordcloud.buckets);
+                        }
+                    });
+                }
+
+
+            },
+            function(callback) {
+                if (k.length==0) callback('nokeyword',[])
+                else{
+                    var body = {
+                        index: 'facebook_classify',
+                        body:{
+                          "size":0,
+                          "query": {
+                              "constant_score" : {
+                                  "filter" : {
+                                      "bool": {
+                                          "must": [
+                                              {
+                                                  "range" : {
+                                                      "date" : {
+                                                          "gte" : d2s+" 00:00:00",
+                                                          "lte" : d1s+" 23:59:59"
+                                                      }
+                                                  }
+                                              }
+                                          ],
+                                          "should": k
+                                      }
+                                  }
+                              }
+                          },
+                          "aggs": {
+                            "wordcloud": {
+                              "terms": {
+                                "field": "keywords",
+                                "size": req.body.total
+                                }
+                            }
+                          }
+                        }
+                    };
+                    //console.log(JSON.stringify(body,null,2))
+                    esClient.search(body,
+                    function(err,resp){
+                        if(err){
+                            console.log(err);
+                            callback(err,[]);
+                        }
+                        else{
+                            callback(null,resp.aggregations.wordcloud.buckets);
+                        }
+                    });
+                }
+
+            }
+        ],
+        function(err, results) {
+            //console.log(results);
+            var r = [];
+            for (var i=0;i<results.length;i++){
+                for (var j=0;j<results[i].length;j++){
+                    r.push(results[i][j])
+                }
+            }
+
+            var r2 = [], r3 = [];
+            var rSend = {};
+            var max = req.body.max;
+            var m = 0;
+            for (var i=0;i<r.length;i++){
+
+                if (r[i].key.indexOf('http')>-1){
+                    r3.push(r[i])
+                }
+                if (exclude.indexOf(r[i].key)>-1){
+                    r3.push(r[i])
+                }
+                else if(r[i].key.length == 1){
+                    r3.push(r[i])
+                }
+                else if(isNaN(r[i].key) == false){
+                    r3.push(r[i])
+                }
+                else {
+                    if (m==0) m=r[i].doc_count
+                    r2.push(r[i])
+                }
+            }
+            for (var i=0;i<r2.length;i++){
+                r2[i].size = Math.round(r2[i].doc_count/m*max)
+                rSend[r2[i].key] = r2[i].size
+            }
+            res.send({type:'success',message:rSend})
+        });
+
+        /*var searchBody = {
             index: 'twitter_classify,bukalapak',
             //type: req.body.project,
             body:{
@@ -93,7 +265,7 @@ module.exports = function(esClient){
 
                 res.send({type:'success',message:rSend})
             }
-        });
+        });*/
     });
     app.post('/sentiment', function (req, res) {
         console.log(req.body)
