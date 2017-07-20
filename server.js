@@ -4,10 +4,10 @@ const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 var cluster = require('cluster');
-var elasticsearch = require('elasticsearch'), fs = require('fs');
+var elasticsearch = require('elasticsearch'), fs = require('fs'), request = require('request');
 const esClient = new elasticsearch.Client({
-  //host: '128.199.88.206:7200'
-  host: 'localhost:7200'
+  host: '128.199.88.206:7200'
+  //host: 'localhost:7200'
   //log: 'trace'
 });
 var sendmail = require('sendmail')();
@@ -186,7 +186,7 @@ else {
             console.dir(reply);
             res.send({msg:reply,error:err})
         });*/
-        var mailOptions = mailerConfig.mail
+        /*var mailOptions = mailerConfig.mail
         mailOptions.to = 'danu@alutechno.io';
         mailOptions.subject = 'Email Example';
         mailOptions.html = '<b>Hello world ✔</b>';
@@ -199,7 +199,62 @@ else {
                 console.log('Message sent: ' + info.response);
                 res.json({yo: info.response});
             };
+        });*/
+        var options = {
+            method: 'POST',
+            url: 'https://helio.id/apilogin',
+            headers: {
+                'cache-control': 'no-cache',
+                'content-type': 'multipart/form-data'
+            },
+            formData:{
+                username: 'info',
+                password: 'info123',
+                domains: 'usight.id',
+                token: '12123123123123123123'
+            }
+        };
+
+        request(options, function (error, response, body) {
+            if (error) throw new Error(error);
+
+            console.log(body);
+            var b = {}
+            try{
+                b = JSON.parse(body)
+            }catch(e){
+                res.send({status:'error',message:e})
+            }
+            if (b.code==200){
+                console.log('success login,',b.data.token)
+                var options2 = {
+                    method: 'POST',
+                    url: 'https://helio.id/composemobile',
+                    headers: {
+                        'cache-control': 'no-cache',
+                        'content-type': 'multipart/form-data'
+                    },
+                    formData:{
+                        token: b.data.token,
+                        to: 'danuyanpermadi@gmail.com',
+                        subject: 'usight.id testing',
+                        body: '12123123123123123123'
+                    }
+                };
+                console.log('options2',options2)
+
+                request(options2, function (error2, response2, body2) {
+                    console.log('error2',error2)
+                    console.log('body2',body2)
+                    if (error2) throw new Error(error2);
+
+                    console.log(body2);
+                    res.send(body2);
+
+                });
+            }
         });
+
     });
 
 

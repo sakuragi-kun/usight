@@ -1,5 +1,5 @@
 var express = require('express');
-var async = require('async');
+var async = require('async'), request = require('request');
 module.exports = function(esClient,jwt,transporter,mailerConfig){
     var app = express.Router();
 
@@ -32,7 +32,62 @@ module.exports = function(esClient,jwt,transporter,mailerConfig){
                 }, function (error2, response) {
                     if (error2) res.send({status:'error',message:'Something went wrong'})
                     else {
-                        res.send({status:'success'})
+                        var options = {
+                            method: 'POST',
+                            url: 'https://helio.id/apilogin',
+                            headers: {
+                                'cache-control': 'no-cache',
+                                'content-type': 'multipart/form-data'
+                            },
+                            formData:{
+                                username: 'info',
+                                password: 'info123',
+                                domains: 'usight.id',
+                                token: '12123123123123123123'
+                            }
+                        };
+                        console.log('options',options)
+
+                        request(options, function (error, response, body) {
+                            if (error) res.send({status:'error',message:error});
+                            else {
+                                var b = {}
+                                try{
+                                    b = JSON.parse(body)
+                                }catch(e){
+                                    res.send({status:'error',message:e})
+                                }
+                                if (b.code==200){
+                                    var options2 = {
+                                        method: 'POST',
+                                        url: 'https://helio.id/composemobile',
+                                        headers: {
+                                            'cache-control': 'no-cache',
+                                            'content-type': 'multipart/form-data'
+                                        },
+                                        formData:{
+                                            token: b.data.token,
+                                            to: req.body.companyemail,
+                                            subject: 'Usight.id mail confirmation',
+                                            body: '<b>Thanks for using Usight, please follow URL bellow to confirm your email</b><br />'+
+                                            'http://app.usight.id/confirmation?p='+jwt.sign({username:req.body.username}, 'smrai.inc')
+                                        }
+                                    };
+                                    console.log('options2',options2)
+                                    request(options2, function (error2, response2, body2) {
+                                        if (error2) res.send({status:'error',message:error2});
+                                        else {
+                                            console.log(body2);
+                                            //res.send(body2);
+                                            res.send({status:'success',message:JSON.parse(body2)})
+                                        }
+                                    });
+                                }
+                            }
+
+                        });
+
+                        /*res.send({status:'success'})
                         var mailOptions = mailerConfig.mail
                         mailOptions.to = body.companyemail;
                         mailOptions.subject = 'Usight.id mail confirmation';
@@ -48,7 +103,7 @@ module.exports = function(esClient,jwt,transporter,mailerConfig){
                                 console.log('success sent email: ',info.response);
                                 //res.json({yo: info.response});
                             };
-                        });
+                        });*/
                     }
                 });
             }
