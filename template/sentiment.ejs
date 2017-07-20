@@ -59,6 +59,7 @@
 	<script type="text/javascript" src="assets/js/plugins/pickers/pickadate/legacy.js"></script>
     <script type="text/javascript" src="assets/js/plugins/forms/styling/uniform.min.js"></script>
 	<script type="text/javascript" src="assets/js/plugins/forms/styling/switchery.min.js"></script>
+	<script type="text/javascript" src="assets/js/plugins/jquery.JIndicator.min.js"></script>
 
 	<script type="text/javascript" src="assets/js/plugins/forms/styling/switch.min.js"></script>
 	<script type="text/javascript" src="assets/js/plugins/sliders/nouislider.min.js"></script>
@@ -93,7 +94,7 @@
                         <div class="col-md-3">
                             <div class="form-group form-group-material">
                                 <label class=" has-margin"><b>Tracker Name</b></label>
-                                <select data-placeholder="select tracker.." multiple="multiple" class="select">
+                                <select data-placeholder="select tracker.." multiple="multiple" class="select" id="listTracker">
                                     <option value="Blanja">Blanja</option>
                                     <option value="Elevania">Elevania</option>
                                     <option value="Shopee">Shopee</option>
@@ -276,12 +277,12 @@
 								<div class="panel-body">
 									<div class="tabbable">
 										<ul class="nav nav-sm nav-tabs nav-tabs-solid nav-tabs-component">
-											<li class="active"><a href="#small-tab1" data-toggle="tab">All(15706)</a></li>
-											<li><a href="#small-tab2" data-toggle="tab">Facebook(705)</a></li>
-											<li><a href="#small-tab3" data-toggle="tab">Twitter(705)</a></li>
-											<li><a href="#small-tab4" data-toggle="tab">Instagram(705)</a></li>
-											<li><a href="#small-tab5" data-toggle="tab">News(705)</a></li>
-											<li><a href="#small-tab6" data-toggle="tab">Apps(705)</a></li>
+											<li class="active"><a href="#small-tab1" data-toggle="tab">All(<span id="totalAll">0</span>)</a></li>
+											<li><a href="#small-tab2" data-toggle="tab">Facebook(<span id="totalFacebook">0</span>)</a></li>
+											<li><a href="#small-tab3" data-toggle="tab">Twitter(<span id="totalTwitter">0</span>)</a></li>
+											<li><a href="#small-tab4" data-toggle="tab">Instagram(<span id="totalInstagram">0</span>)</a></li>
+											<li><a href="#small-tab5" data-toggle="tab">News(<span id="totalNews">0</span>)</a></li>
+											<li><a href="#small-tab6" data-toggle="tab">Apps(<span id="totalApps">0</span>)</a></li>
 
 										</ul>
 
@@ -359,7 +360,7 @@
 
 						</div>
 						<div class="col-lg-4">
-							<div class="panel panel-flat" style="height:400px;">
+							<div class="panel panel-flat" >
 								<div class="panel-heading">
 									<h6 class="panel-title">Top Categories</h6>
 								</div>
@@ -375,7 +376,25 @@
 
 										<div class="tab-content">
 											<div class="tab-pane active" id="bottom-tab1">
-												<div class="content-group-xs" id="bullets"></div>
+												<div class="row m-l-10 m-r-10">
+													<div >
+														<h6 class="no-margin text-semibold">Shipping</h6>
+													</div>
+													<div class="progress">
+														<div class="progress-bar bg-success-400" style="width: 20%">
+															<span class="sr-only">20% Complete</span>
+														</div>
+
+														<div class="progress-bar progress-bar-danger" style="width: 30%">
+															<span class="sr-only">30% Complete (danger)</span>
+														</div>
+
+														<div class="progress-bar progress-bar-info progress-bar-striped active" style="width: 40%">
+															<span>40%</span>
+														</div>
+													</div>
+												</div>
+
 											</div>
 
 											<div class="tab-pane" id="bottom-tab2">

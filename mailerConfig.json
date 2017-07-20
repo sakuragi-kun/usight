@@ -4,12 +4,12 @@
         "port": 587,
         "secure": false,
         "auth": {
-            "user": "danuyanpermadi@gmail.com",
-            "pass": "!@#QWEasd1"
+            "user": "",
+            "pass": ""
         }
     },
     "mail":{
-        "from": "info@usight.id",
+        "from": "no-reply@usight.id",
         "to": "",
         "subject": "",
         "html": ""

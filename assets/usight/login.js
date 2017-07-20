@@ -27,7 +27,8 @@ $(function() {
                         token: e.message._source.token
                     }
                     localStorage.setItem('usight-user', JSON.stringify(usr));
-                    window.location.replace(api+"/index");
+                    //window.location.replace(api+"/index");
+                    window.location.replace("app.usight.id/index");
                 }
                 else {
                     $('#errMsg').show();

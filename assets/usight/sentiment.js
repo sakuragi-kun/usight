@@ -11,11 +11,36 @@
 
 $(function() {
     var api = localStorage.publicApi;
+
     var trackerName = [];
     var startPeriod = moment().subtract('days', 6).format('YYYY-MM-DD'), endPeriod = moment().format('YYYY-MM-DD');
     var source = [];
     var sentiment = [];
     var from = 0, size = 10;
+    var a = JSON.parse(localStorage.getItem('usight-tracker'));
+    var aa = []
+    for (var i=0;i<a.length;i++){
+        aa.push('<option value="'+a[i].trackername+'">'+a[i].trackername+'</option>');
+    }
+    $('#listTracker').html(aa.join(' '));
+
+    var keyword = []
+    var tracker = JSON.parse(localStorage.getItem('usight-tracker'))
+    console.log('tw1',tracker)
+
+    try{
+        for (var i=0;i<tracker.length;i++){
+            for (var j=0;j<tracker[i].twitter.mainkeyword.split(',').length;j++){
+                try{
+                    if (tracker[i].twitter.mainkeyword.split(',')[j].length>0) keyword.push(tracker[i].twitter.mainkeyword.split(',')[j])
+                }
+                catch(e){}
+            }
+        }
+        //keyword = JSON.parse(localStorage.getItem('usight-tracker')).twitter.mainkeyword
+    }
+    catch(e){}
+    console.log('tw2',keyword)
     console.log('period',$('#period').html())
 
     function setAllSource(ch){
@@ -177,6 +202,49 @@ $(function() {
     // ------------------------------
 
     // Generate chart
+    function line_chart(p1,p2){
+        var line_chart = c3.generate({
+            bindto: '#dailyBuzz',
+            point: {
+                r: 4
+            },
+            size: { height: 300 },
+            color: {
+                pattern: ['#33A9DD', '#405E99', '#D97AC5','#F8BC90','#33BBC2']
+            },
+            data: {
+                columns: p1
+            },
+            axis: {
+                y: {
+                    label: {
+                        text:'REACH',
+                        position: 'outer-middle'
+                    }
+                },
+                x: {
+                    type: 'category',
+                    categories: p2
+                }
+            },
+            grid: {
+                y: {
+                    show: true
+                }
+            },
+            legend: {
+                show: true,
+                position: 'inset',
+                inset: {
+                    anchor: 'top-right',
+                    x: 20,
+                    y: 0,
+                    step: 5
+                }
+            }
+        });
+    }
+
     var area_chart = c3.generate({
         bindto: '#voicetracker',
         size: { height: 300, width: ($('#voicetracker').width()-10) },
@@ -298,6 +366,7 @@ $(function() {
     //timeline([]);
     function timeline(data){
         var html = [],html_twitter = [], html_news = [],html_facebook = [], html_instagram = [], html_apps = [];
+        var totalAll = 0, totalTwitter = 0, totalNews = 0, totalFacebook = 0, totalInstagram = 0, totalApps = 0;
         for (var i=0;i<data.length;i++){
             html.push('<div class="col-lg-12" >'+
                 '<div class="panel border-left-lg border-left-primary timeline-content">'+
@@ -306,7 +375,7 @@ $(function() {
                             '<ul class="media-list">'+
                                 '<li class="media">'+
                                     '<div class="media-left">'+
-                                        '<img src="'+data[i].img+'" class="img-circle img-xs" alt="">'+
+                                        '<img src="'+data[i].img+'" class="img-circle img-xs" alt="assets/images/usight/twitter_small.png">'+
                                     '</div>'+
                                     '<div class="media-body">'+
                                         //'<a href="#">',
@@ -324,9 +393,9 @@ $(function() {
                     '<div class="panel-footer panel-footer-condensed">'+
                         '<div class="heading-elements">'+
                             '<ul class="list-inline list-inline-condensed heading-text pull-left">'+
-                                '<li><a href="javascript:void(0)" ><i class="icon-trash position-left"></i> Delete</a></li>'+
-                                '<li><a href="javascript:void(0)" ><i class="icon-link position-left"></i> Go to Link</a></li>'+
-                                '<li class="dropdown">'+
+                                //'<li><a href="javascript:void(0)" ><i class="icon-trash position-left"></i> Delete</a></li>'+
+                                '<li><a href="'+data[i].url+'" ><i class="icon-link position-left"></i> Go to Link</a></li>'+
+                                /*'<li class="dropdown">'+
                                     '<a href="#" class="text-default dropdown-toggle" data-toggle="dropdown"><i class="icon-menu7"></i> <span class="caret"></span></a>'+
                                     '<ul class="dropdown-menu dropdown-menu-right">'+
                                         '<li><a href="#"><i class="icon-alarm-add"></i> Check in</a></li>'+
@@ -336,17 +405,32 @@ $(function() {
                                         '<li><a href="#"><i class="icon-pencil7"></i> Edit task</a></li>'+
                                         '<li><a href="#"><i class="icon-cross2"></i> Remove</a></li>'+
                                     '</ul>'+
-                                '</li>'+
+                                '</li>'+*/
                             '</ul>'+
                         '</div>'+
                     '</div>'+
                 '</div>'+
             '</div>');
-            if (data[i].source == 'twitter') html_twitter.push(html[i])
-            else if (data[i].source == 'news') html_news.push(html[i])
-            else if (data[i].source == 'facebook') html_facebook.push(html[i])
-            else if (data[i].source == 'instagram') html_instagram.push(html[i])
-            else if (data[i].source == 'apps') html_apps.push(html[i])
+            if (data[i].source == 'twitter') {
+                html_twitter.push(html[i])
+                totalTwitter = data[i].total
+            }
+            else if (data[i].source == 'news') {
+                html_news.push(html[i])
+                totalNews = data[i].total
+            }
+            else if (data[i].source == 'facebook') {
+                html_facebook.push(html[i])
+                totalFacebook = data[i].total
+            }
+            else if (data[i].source == 'instagram') {
+                html_instagram.push(html[i])
+                totalInstagram = data[i].total
+            }
+            else if (data[i].source == 'apps') {
+                html_apps.push(html[i])
+                totalApps = data[i].total
+            }
         };
         if (html.length==0) html.push('Data not Available');
         if (html_twitter.length==0) html_twitter.push('Data not Available');
@@ -354,51 +438,14 @@ $(function() {
         if (html_facebook.length==0) html_facebook.push('Data not Available');
         if (html_instagram.length==0) html_instagram.push('Data not Available');
         if (html_apps.length==0) html_apps.push('Data not Available');
+        totalAll = (totalTwitter+totalNews+totalFacebook+totalInstagram+totalApps);
+        $('#totalAll').html(totalAll)
+        $('#totalTwitter').html(totalTwitter)
+        $('#totalFacebook').html(totalFacebook)
+        $('#totalNews').html(totalNews)
+        $('#totalInstagram').html(totalInstagram)
+        $('#totalApps').html(totalApps)
 
-
-        /*html.push('<div class="col-lg-12" >',
-            '<div class="panel border-left-lg border-left-primary timeline-content">',
-                '<div class="panel-body">',
-                    '<div class="row">',
-                        '<ul class="media-list">',
-                            '<li class="media">',
-                                '<div class="media-left">',
-                                    '<img src="https://pbs.twimg.com/profile_images/879285363109277696/7hipZxYT_400x400.jpg" class="img-circle img-xs" alt="">',
-                                '</div>',
-                                '<div class="media-body">',
-                                    //'<a href="#">',
-                                        'Sukma Wanto',
-                                        '<img src="assets/images/usight/twitter_small.png" alt="" style="margin-left:10px">',
-                                        '<span class="label label-primary label-rounded" style="margin-left:10px">Positive</span>',
-                                        '<span class="media-annotation pull-right">4 Mei 2017 10:14:58</span>',
-                                    //'</a>',
-                                    '<span class="display-block text-muted">Percuma Diskon Juga, kl orderan cancel terus uang dicopet sebagian</span>',
-                                '</div>',
-                            '</li>',
-                        '</ul>',
-                    '</div>',
-                '</div>',
-                '<div class="panel-footer panel-footer-condensed">',
-                    '<div class="heading-elements">',
-                        '<ul class="list-inline list-inline-condensed heading-text pull-left">',
-                            '<li><a href="javascript:void(0)" ><i class="icon-trash position-left"></i> Delete</a></li>',
-                            '<li><a href="javascript:void(0)" ><i class="icon-link position-left"></i> Go to Link</a></li>',
-                            '<li class="dropdown">',
-                                '<a href="#" class="text-default dropdown-toggle" data-toggle="dropdown"><i class="icon-menu7"></i> <span class="caret"></span></a>',
-                                '<ul class="dropdown-menu dropdown-menu-right">',
-                                    '<li><a href="#"><i class="icon-alarm-add"></i> Check in</a></li>',
-                                    '<li><a href="#"><i class="icon-attachment"></i> Attach screenshot</a></li>',
-                                    '<li><a href="#"><i class="icon-rotate-ccw2"></i> Reassign</a></li>',
-                                    '<li class="divider"></li>',
-                                    '<li><a href="#"><i class="icon-pencil7"></i> Edit task</a></li>',
-                                    '<li><a href="#"><i class="icon-cross2"></i> Remove</a></li>',
-                                '</ul>',
-                            '</li>',
-                        '</ul>',
-                    '</div>',
-                '</div>',
-            '</div>',
-        '</div>');*/
         $('#allData').append(html.join(''))
         $('#twitterData').append(html_twitter.join(''))
         $('#newsData').append(html_news.join(''))
@@ -407,534 +454,29 @@ $(function() {
         $('#appsData').append(html_apps.join(''))
     }
 
-    // Bullet charts
-    // ------------------------------
-
-    // Initialize chart
-    bulletChart("#bullets", 80);
-
-    // Chart setup
-    function bulletChart(element, height) {
-
-
-        // Bullet chart core
-        // ------------------------------
-
-        bulletCore();
-        function bulletCore() {
-
-            // Construct
-            d3.bullet = function() {
-
-                // Default layout variables
-                var orient = "left",
-                    reverse = false,
-                    duration = 750,
-                    ranges = bulletRanges,
-                    markers = bulletMarkers,
-                    measures = bulletMeasures,
-                    height = 30,
-                    tickFormat = null;
-
-                // For each small multiple…
-                function bullet(g) {
-                    g.each(function(d, i) {
-
-                        // Define variables
-                        var rangez = ranges.call(this, d, i).slice().sort(d3.descending),
-                            markerz = markers.call(this, d, i).slice().sort(d3.descending),
-                            measurez = measures.call(this, d, i).slice().sort(d3.descending),
-                            g = d3.select(this);
-
-                        // Compute the new x-scale.
-                        var x1 = d3.scale.linear()
-                            .domain([0, Math.max(rangez[0], markerz[0], measurez[0])])
-                            .range(reverse ? [width, 0] : [0, width]);
-
-                        // Retrieve the old x-scale, if this is an update.
-                        var x0 = this.__chart__ || d3.scale.linear()
-                            .domain([0, Infinity])
-                            .range(x1.range());
-
-                        // Stash the new scale.
-                        this.__chart__ = x1;
-
-                        // Derive width-scales from the x-scales.
-                        var w0 = bulletWidth(x0),
-                            w1 = bulletWidth(x1);
-
-
-
-                        // Setup range
-                        // ------------------------------
-
-                        // Update the range rects
-                        var range = g.selectAll(".bullet-range")
-                            .data(rangez);
-
-                        // Append range rect
-                        range.enter()
-                            .append("rect")
-                                .attr("class", function(d, i) { return "bullet-range bullet-range-" + (i + 1); })
-                                .attr("width", w0)
-                                .attr("height", height)
-                                .attr('rx', 2)
-                                .attr("x", reverse ? x0 : 0)
-
-                        // Add loading animation
-                        .transition()
-                            .duration(duration)
-                            .attr("width", w1)
-                            .attr("x", reverse ? x1 : 0);
-
-                        // Add update animation
-                        range.transition()
-                            .duration(duration)
-                            .attr("x", reverse ? x1 : 0)
-                            .attr("width", w1)
-                            .attr("height", height);
-
-
-
-                        // Setup measures
-                        // ------------------------------
-
-                        // Update the measure rects
-                        var measure = g.selectAll(".bullet-measure")
-                            .data(measurez);
-
-                        // Append measure rect
-                        measure.enter()
-                            .append("rect")
-                                .attr("class", function(d, i) { return "bullet-measure bullet-measure-" + (i + 1); })
-                                .attr("width", w0)
-                                .attr("height", height / 5)
-                                .attr("x", reverse ? x0 : 0)
-                                .attr("y", height / 2.5)
-                                .style("shape-rendering", "crispEdges");
-
-                        // Add loading animation
-                        measure.transition()
-                            .duration(duration)
-                            .attr("width", w1)
-                            .attr("x", reverse ? x1 : 0);
-
-                        // Add update animation
-                        measure.transition()
-                            .duration(duration)
-                            .attr("width", w1)
-                            .attr("height", height / 5)
-                            .attr("x", reverse ? x1 : 0)
-                            .attr("y", height / 2.5);
-
-
-
-                        // Setup markers
-                        // ------------------------------
-
-                        // Update the marker lines
-                        var marker = g.selectAll(".bullet-marker")
-                            .data(markerz);
-
-                        // Append marker line
-                        marker.enter()
-                            .append("line")
-                                .attr("class", function(d, i) { return "bullet-marker bullet-marker-" + (i + 1); })
-                                .attr("x1", x0)
-                                .attr("x2", x0)
-                                .attr("y1", height / 6)
-                                .attr("y2", height * 5 / 6);
-
-                        // Add loading animation
-                        marker.transition()
-                            .duration(duration)
-                            .attr("x1", x1)
-                            .attr("x2", x1);
-
-                        // Add update animation
-                        marker.transition()
-                            .duration(duration)
-                            .attr("x1", x1)
-                            .attr("x2", x1)
-                            .attr("y1", height / 6)
-                            .attr("y2", height * 5 / 6);
-
-
-
-                        // Setup axes
-                        // ------------------------------
-
-                        // Compute the tick format.
-                        var format = tickFormat || x1.tickFormat(8);
-
-                        // Update the tick groups.
-                        var tick = g.selectAll(".bullet-tick")
-                            .data(x1.ticks(8), function(d) {
-                                return this.textContent || format(d);
-                            });
-
-                        // Initialize the ticks with the old scale, x0.
-                        var tickEnter = tick.enter()
-                            .append("g")
-                                .attr("class", "bullet-tick")
-                                .attr("transform", bulletTranslate(x0))
-                                .style("opacity", 1e-6);
-
-                        // Append line
-                        tickEnter.append("line")
-                            .attr("y1", height)
-                            .attr("y2", (height * 7 / 6) + 3);
-
-                        // Append text
-                        tickEnter.append("text")
-                            .attr("text-anchor", "middle")
-                            .attr("dy", "1em")
-                            .attr("y", (height * 7 / 6) + 4)
-                            .text(format);
-
-                        // Transition the entering ticks to the new scale, x1.
-                        tickEnter.transition()
-                            .duration(duration)
-                            .attr("transform", bulletTranslate(x1))
-                            .style("opacity", 1);
-
-                        // Transition the updating ticks to the new scale, x1.
-                        var tickUpdate = tick.transition()
-                            .duration(duration)
-                            .attr("transform", bulletTranslate(x1))
-                            .style("opacity", 1);
-
-                        // Update tick line
-                        tickUpdate.select("line")
-                            .attr("y1", height + 3)
-                            .attr("y2", (height * 7 / 6) + 3);
-
-                        // Update tick text
-                        tickUpdate.select("text")
-                            .attr("y", (height * 7 / 6) + 4);
-
-                        // Transition the exiting ticks to the new scale, x1.
-                        tick.exit()
-                            .transition()
-                                .duration(duration)
-                                .attr("transform", bulletTranslate(x1))
-                                .style("opacity", 1e-6)
-                                .remove();
-
-
-
-                        // Resize chart
-                        // ------------------------------
-
-                        // Call function on window resize
-                        $(window).on('resize', resizeBulletsCore);
-
-                        // Call function on sidebar width change
-                        $(document).on('click', '.sidebar-control', resizeBulletsCore);
-
-                        // Resize function
-                        //
-                        // Since D3 doesn't support SVG resize by default,
-                        // we need to manually specify parts of the graph that need to
-                        // be updated on window resize
-                        function resizeBulletsCore() {
-
-                            // Layout variables
-                            width = d3.select("#bullets").node().getBoundingClientRect().width - margin.left - margin.right;
-                            w1 = bulletWidth(x1);
-
-
-                            // Layout
-                            // -------------------------
-
-                            // Horizontal range
-                            x1.range(reverse ? [width, 0] : [0, width]);
-
-
-                            // Chart elements
-                            // -------------------------
-
-                            // Measures
-                            g.selectAll(".bullet-measure").attr("width", w1).attr("x", reverse ? x1 : 0);
-
-                            // Ranges
-                            g.selectAll(".bullet-range").attr("width", w1).attr("x", reverse ? x1 : 0);
-
-                            // Markers
-                            g.selectAll(".bullet-marker").attr("x1", x1).attr("x2", x1)
-
-                            // Ticks
-                            g.selectAll(".bullet-tick").attr("transform", bulletTranslate(x1))
-                        }
-                    });
-
-                    d3.timer.flush();
-                }
-
-
-                // Constructor functions
-                // ------------------------------
-
-                // Left, right, top, bottom
-                bullet.orient = function(x) {
-                    if (!arguments.length) return orient;
-                    orient = x;
-                    reverse = orient == "right" || orient == "bottom";
-                    return bullet;
-                };
-
-                // Ranges (bad, satisfactory, good)
-                bullet.ranges = function(x) {
-                    if (!arguments.length) return ranges;
-                    ranges = x;
-                    return bullet;
-                };
-
-                // Markers (previous, goal)
-                bullet.markers = function(x) {
-                    if (!arguments.length) return markers;
-                    markers = x;
-                    return bullet;
-                };
-
-                // Measures (actual, forecast)
-                bullet.measures = function(x) {
-                    if (!arguments.length) return measures;
-                    measures = x;
-                    return bullet;
-                };
-
-                // Width
-                bullet.width = function(x) {
-                    if (!arguments.length) return width;
-                    width = x;
-                    return bullet;
-                };
-
-                // Height
-                bullet.height = function(x) {
-                    if (!arguments.length) return height;
-                    height = x;
-                    return bullet;
-                };
-
-                // Axex tick format
-                bullet.tickFormat = function(x) {
-                    if (!arguments.length) return tickFormat;
-                    tickFormat = x;
-                    return bullet;
-                };
-
-                // Transition duration
-                bullet.duration = function(x) {
-                    if (!arguments.length) return duration;
-                    duration = x;
-                    return bullet;
-                };
-
-                return bullet;
-            };
-
-            // Ranges
-            function bulletRanges(d) {
-                return d.ranges;
-            }
-
-            // Markers
-            function bulletMarkers(d) {
-                return d.markers;
-            }
-
-            // Measures
-            function bulletMeasures(d) {
-                return d.measures;
-            }
-
-            // Positioning
-            function bulletTranslate(x) {
-                return function(d) {
-                    return "translate(" + x(d) + ",0)";
-                };
-            }
-
-            // Width
-            function bulletWidth(x) {
-                var x0 = x(0);
-                return function(d) {
-                    return Math.abs(x(d) - x0);
-                };
-            }
+    function catChart(p){
+        var html = [];
+        for(var key in p){
+            html.push('<div class="row m-l-10 m-r-10">',
+                '<div >',
+                    '<h6 class="no-margin text-semibold">'+key.toUpperCase()+'</h6>',
+                '</div>',
+                '<div class="progress">',
+                    '<div class="progress-bar bg-success-400" style="width: '+p[key].pos+'%">',
+                        //'<span class="sr-only">20% Complete</span>',
+                    '</div>',
+                    '<div class="progress-bar progress-bar-danger" style="width: '+p[key].neg+'%">',
+                        //'<span class="sr-only">30% Complete (danger)</span>',
+                    '</div>',
+                    '<div class="progress-bar progress-bar-info" style="width: '+p[key].neu+'%">',
+                        //'<span>40%</span>',
+                    '</div>',
+                '</div>',
+            '</div><br />');
         }
-
-
-
-
-        // Basic setup
-        // ------------------------------
-
-        // Main variables
-        var d3Container = d3.select(element),
-            margin = {top: 20, right: 10, bottom: 35, left: 10},
-            width = width = d3Container.node().getBoundingClientRect().width - margin.left - margin.right,
-            height = height - margin.top - margin.bottom;
-
-
-
-        // Construct chart layout
-        // ------------------------------
-
-        var chart = d3.bullet()
-            .width(width)
-            .height(height);
-
-
-
-        // Load data
-        // ------------------------------
-
-        d3.json("assets/demo_data/dashboard/bullets.json", function(error, data) {
-
-            // Show what's wrong if error
-            if (error) return console.error(error);
-
-
-            // Create SVG
-            // ------------------------------
-
-            // SVG container
-            var container = d3Container.selectAll("svg")
-                .data(data)
-                .enter()
-                .append('svg');
-
-            // SVG group
-            var svg = container
-                .attr("class", function(d, i) { return "bullet-" + (i + 1); })
-                .attr('width', width + margin.left + margin.right)
-                .attr('height', height + margin.top + margin.bottom)
-                .append("g")
-                    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-                    .call(chart);
-
-
-
-            // Add title
-            // ------------------------------
-
-            // Title group
-            var title = svg.append("g")
-                .style("text-anchor", "start");
-
-            // Bullet title text
-            title.append("text")
-                .attr("class", "bullet-title")
-                .attr('y', -10)
-                .text(function(d) { return d.title; });
-
-            // Bullet subtitle text
-            title.append("text")
-                .attr("class", "bullet-subtitle")
-                .attr('x', width)
-                .attr('y', -10)
-                .style("text-anchor", "end")
-                .text(function(d) { return d.subtitle; })
-                .style('opacity', 0)
-                .transition()
-                    .duration(500)
-                    .delay(500)
-                    .style('opacity', 1);
-
-
-
-            // Add random transition for demo
-            // ------------------------------
-
-            // Bind data
-            var interval = function() {
-                svg.datum(randomize).call(chart.duration(750));
-            }
-
-            // Set interval
-            var intervalIds = [];
-            intervalIds.push(
-                setInterval(function() {
-                    interval()
-                }, 5000)
-            );
-
-            // Add Switchery toggle control
-            var realtime = document.querySelector('.switcher');
-            var realtimeInit = new Switchery(realtime);
-            realtime.onchange = function() {
-                if(realtime.checked) {
-                    intervalIds.push(setInterval(function() { interval() }, 5000));
-                }
-                else {
-                    for (var i=0; i < intervalIds.length; i++) {
-                        clearInterval(intervalIds[i]);
-                    }
-                }
-            };
-
-
-
-            // Resize chart
-            // ------------------------------
-
-            // Call function on window resize
-            $(window).on('resize', bulletResize);
-
-            // Call function on sidebar width change
-            $(document).on('click', '.sidebar-control', bulletResize);
-
-            // Resize function
-            //
-            // Since D3 doesn't support SVG resize by default,
-            // we need to manually specify parts of the graph that need to
-            // be updated on window resize
-            function bulletResize() {
-
-                // Layout variables
-                width = d3Container.node().getBoundingClientRect().width - margin.left - margin.right;
-
-
-                // Layout
-                // -------------------------
-
-                // Main svg width
-                container.attr("width", width + margin.left + margin.right);
-
-                // Width of appended group
-                svg.attr("width", width + margin.left + margin.right);
-
-
-                // Chart elements
-                // -------------------------
-
-                // Subtitle
-                svg.selectAll('.bullet-subtitle').attr("x", width);
-            }
-        });
-
-
-
-        // Randomizers
-        // ------------------------------
-
-        function randomize(d) {
-            if (!d.randomizer) d.randomizer = randomizer(d);
-            d.ranges = d.ranges.map(d.randomizer);
-            d.markers = d.markers.map(d.randomizer);
-            d.measures = d.measures.map(d.randomizer);
-            return d;
-        }
-        function randomizer(d) {
-            var k = d3.max(d.ranges) * .2;
-            return function(d) {
-                return Math.max(0, d + k * (Math.random() - .5));
-            };
-        }
+        $('#bottom-tab1').html(html.join(' '))
     }
+
 
 
 
@@ -953,8 +495,23 @@ period.on('change',function(event){
     });
     console.log("selected values: ", values);
     trackerName = values;
-    queryData();
+    try{
+        for (var i=0;i<tracker.length;i++){
+            if (tracker[i].indexOf(values)>-1){
+                for (var j=0;j<tracker[i].twitter.mainkeyword.split(',').length;j++){
+                    try{
+                        if (tracker[i].twitter.mainkeyword.split(',')[j].length>0) keyword.push(tracker[i].twitter.mainkeyword.split(',')[j])
+                    }
+                    catch(e){}
+                }
+            }
 
+        }
+        //keyword = JSON.parse(localStorage.getItem('usight-tracker')).twitter.mainkeyword
+    }
+    catch(e){}
+    console.log('tw2',keyword)
+    queryData();
 })
 
 $('.daterange-ranges').daterangepicker(
@@ -1024,6 +581,7 @@ function queryData(){
         endPeriod: endPeriod,
         trackerName: trackerName,
         sentiment: sentiment,
+        keywords: keyword.join(','),
         max:40
     }
     console.log('sendBody',body)
@@ -1042,6 +600,71 @@ function queryData(){
         console.log('ab',r)
         barChart(e.message);
     });
+    $.post(api+'/api-sentiment/category',body,function(e,r){
+        console.log('category',e)
+        console.log('category',r);
+        var ee = {
+            "other": {"pos": 0,"neg": 0,"neu": 0},
+            "informasi": {"pos": 0,"neg": 0,"neu": 0},
+            "aplikasi": {"pos": 0,"neg": 0,"neu": 0},
+            "fitur": {"pos": 0,"neg": 0,"neu": 0},
+            "promosi": {"pos": 0,"neg": 0,"neu": 0},
+            "pengiriman": {"pos": 0,"neg": 0,"neu": 0},
+            "pembelian": {"pos": 0,"neg": 0,"neu": 0},
+            "payment": {"pos": 0,"neg": 0,"neu": 0}
+        }
+        for (var key in e.message){
+            ee[key]['pos'] = ((e.message[key].positive/ (e.message[key].positive+e.message[key].negative+e.message[key].neutral))*100)
+            ee[key]['neg'] = ((e.message[key].negative/ (e.message[key].positive+e.message[key].negative+e.message[key].neutral))*100)
+            ee[key]['neu'] = ((e.message[key].neutral/ (e.message[key].positive+e.message[key].negative+e.message[key].neutral))*100)
+        }
+        catChart(ee)
+        //barChart(e.message);
+    });
+    $.post(api+'/api-sentiment/buzz',body,function(e,r){
+        console.log('buzze',e)
+        console.log('buzzr',r)
+        var a = moment(startPeriod);
+        var b = moment(endPeriod);
+        var arrdate = []
+
+        for (var m = moment(a); m.isBefore(b); m.add('days', 1)) {
+            console.log('buzz',m.format('YYYY-MM-DD'));
+            arrdate.push(m.format('YYYY-MM-DD'))
+        }
+        var par = [];
+        var par2 = [];
+        var a1 = [];
+        a1 = ['twitter']
+        a2 = ['facebook']
+        a3 = ['instagram']
+        a4 = ['news']
+        a5 = ['playstore']
+
+        for (var i=0;i<arrdate.length;i++){
+            var stat1 = false;
+            for (var j=0;j<e.message['twitter'].length;j++){
+                if (arrdate[i]==e.message.twitter[j].dt) stat1=e.message.twitter[j].total
+            }
+            if (stat1==false) a1.push(0)
+            else a1.push(stat1)
+
+            var stat2 = false;
+            for (var j=0;j<e.message['facebook'].length;j++){
+                if (arrdate[i]==e.message.facebook[j].dt) stat2=e.message.facebook[j].total
+            }
+            if (stat2==false) a2.push(0)
+            else a2.push(stat2)
+            a3.push(0)
+            a4.push(0)
+            a5.push(0)
+            par2.push(arrdate[i].split('-')[1]+'/'+arrdate[i].split('-')[2])
+        }
+        par.push(a1,a2,a3,a4,a5)
+
+        console.log('buzzpar',par,par2)
+        line_chart(par,par2);
+    });
     $('#allData').html('');
     $.post(api+'/api-sentiment/timeline',body,function(e,r){
         console.log('timeline',e)
@@ -1053,6 +676,7 @@ function queryData(){
         $('#instagramData').html('');
         $('#appsData').html('');
         timeline(e.message);
+        //$('#totalAll').html(e.message[0].total);
     });
 
 }

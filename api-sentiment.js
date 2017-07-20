@@ -11,7 +11,23 @@ module.exports = function(esClient){
         console.log(req.body)
         var exclude = ['co','amp','com','go','ga','https']
         var retval = [];
-        var source = req.body.source?req.body.source:[]
+        var source = req.body.source?req.body.source:[];
+        k = []
+        k2 = []
+        if (req.body.keywords.length>0){
+            for(var i=0;i<req.body.keywords.split(',').length;i++){
+                k.push({
+                    "term": {
+                        "keywords": req.body.keywords.split(',')[i].trim()
+                    }
+                })
+                k2.push({
+                    "term": {
+                        "keyword": req.body.keywords.split(',')[i].trim()
+                    }
+                })
+            }
+        }
         async.parallel([
             function(callback) {
                 if (source.indexOf('twitter')>-1){
@@ -45,7 +61,8 @@ module.exports = function(esClient){
                                                       "sentiment": sentiment
                                                   }
                                               }
-                                          ]
+                                          ],
+                                          "should": k
                                       }
                                   }
                               }
@@ -54,17 +71,84 @@ module.exports = function(esClient){
                             "wordcloud": {
                               "terms": {
                                 "field": "keywords",
+                                "size": 100
+                                }
+                            }
+                          }
+                        }
+                    };
+                    /*if (req.body.trackerName){
+                        if (req.body.trackerName.length>0){
+                            body['type'] = req.body.trackerName.join(',');
+                        }
+                    }*/
+                    //console.log(JSON.stringify(body,null,2))
+                    esClient.search(body,
+                    function(err,resp){
+                        if(err){
+                            console.log(err);
+                            callback(err,'');
+                        }
+                        else{
+                            callback(null,resp.aggregations.wordcloud.buckets);
+                        }
+                    });
+                }
+                else callback(null, []);
+            },
+            function(callback) {
+                if (source.indexOf('facebook')>-1){
+                    var sentiment = [];
+                    if (req.body.sentiment){
+                        sentiment = req.body.sentiment.length==0?['positive','negative','neutral']:req.body.sentiment;
+                    }
+                    else {
+                        sentiment = ['positive','negative','neutral']
+                    }
+
+                    var body = {
+                        index: 'facebook_classify',
+                        body:{
+                          "size":0,
+                          "query": {
+                              "constant_score" : {
+                                  "filter" : {
+                                      "bool": {
+                                          "must": [
+                                              {
+                                                  "range" : {
+                                                      "date" : {
+                                                          "gte" : req.body.startPeriod+" 00:00:00",
+                                                          "lte" : req.body.endPeriod+" 23:59:59"
+                                                      }
+                                                  }
+                                              },
+                                              {
+                                                  "terms": {
+                                                      "sentiment": sentiment
+                                                  }
+                                              }
+                                          ],
+                                          "should": k2
+                                      }
+                                  }
+                              }
+                          },
+                          "aggs": {
+                            "wordcloud": {
+                              "terms": {
+                                "field": "keyword",
                                 "size": 40
                                 }
                             }
                           }
                         }
                     };
-                    if (req.body.trackerName){
+                    /*if (req.body.trackerName){
                         if (req.body.trackerName.length>0){
                             body['type'] = req.body.trackerName.join(',');
                         }
-                    }
+                    }*/
                     //console.log(JSON.stringify(body,null,2))
                     esClient.search(body,
                     function(err,resp){
@@ -183,6 +267,22 @@ module.exports = function(esClient){
     app.post('/sentiment', function (req, res) {
         console.log(req.body)
         var source = req.body.source?req.body.source:[]
+        k = []
+        k2 = []
+        if (req.body.keywords.length>0){
+            for(var i=0;i<req.body.keywords.split(',').length;i++){
+                k.push({
+                    "term": {
+                        "keywords": req.body.keywords.split(',')[i].trim()
+                    }
+                })
+                k2.push({
+                    "term": {
+                        "keyword": req.body.keywords.split(',')[i].trim()
+                    }
+                })
+            }
+        }
         async.parallel([
             function(callback) {
                 if (source.indexOf('twitter')>-1){
@@ -216,7 +316,8 @@ module.exports = function(esClient){
                                                       "sentiment": sentiment
                                                   }
                                               }
-                                          ]
+                                          ],
+                                          "should": k
                                       }
                                   }
                               }
@@ -230,11 +331,77 @@ module.exports = function(esClient){
                           }
                         }
                     };
-                    if (req.body.trackerName){
+                    /*if (req.body.trackerName){
                         if (req.body.trackerName.length>0){
                             body['type'] = req.body.trackerName.join(',');
                         }
+                    }*/
+                    //console.log(JSON.stringify(body,null,2))
+                    esClient.search(body,
+                    function(err,resp){
+                        if(err){
+                            console.log(err);
+                            callback(err,'');
+                        }
+                        else{
+                            callback(null,resp.aggregations.sentiment.buckets);
+                        }
+                    });
+                }
+                else callback(null, []);
+            },
+            function(callback) {
+                if (source.indexOf('facebook')>-1){
+                    var sentiment = [];
+                    if (req.body.sentiment){
+                        sentiment = req.body.sentiment.length==0?['positive','negative','neutral']:req.body.sentiment;
                     }
+                    else {
+                        sentiment = ['positive','negative','neutral']
+                    }
+
+                    var body = {
+                        index: 'facebook_classify',
+                        body:{
+                          "size":0,
+                          "query": {
+                              "constant_score" : {
+                                  "filter" : {
+                                      "bool": {
+                                          "must": [
+                                              {
+                                                  "range" : {
+                                                      "date" : {
+                                                          "gte" : req.body.startPeriod+" 00:00:00",
+                                                          "lte" : req.body.endPeriod+" 23:59:59"
+                                                      }
+                                                  }
+                                              },
+                                              {
+                                                  "terms": {
+                                                      "sentiment": sentiment
+                                                  }
+                                              }
+                                          ],
+                                          "should": k2
+                                      }
+                                  }
+                              }
+                          },
+                          "aggs": {
+                            "sentiment": {
+                              "terms": {
+                                "field": "sentiment"
+                                }
+                            }
+                          }
+                        }
+                    };
+                    /*if (req.body.trackerName){
+                        if (req.body.trackerName.length>0){
+                            body['type'] = req.body.trackerName.join(',');
+                        }
+                    }*/
                     //console.log(JSON.stringify(body,null,2))
                     esClient.search(body,
                     function(err,resp){
@@ -422,7 +589,24 @@ module.exports = function(esClient){
             instagram:0,
             news:0,
             playstore: 0
+        };
+        k = []
+        k2 = []
+        if (req.body.keywords.length>0){
+            for(var i=0;i<req.body.keywords.split(',').length;i++){
+                k.push({
+                    "term": {
+                        "keywords": req.body.keywords.split(',')[i].trim()
+                    }
+                })
+                k2.push({
+                    "term": {
+                        "keyword": req.body.keywords.split(',')[i].trim()
+                    }
+                })
+            }
         }
+
         var source = req.body.source?req.body.source:[]
         async.parallel([
             function(callback) {
@@ -457,18 +641,19 @@ module.exports = function(esClient){
                                                       "sentiment": sentiment
                                                   }
                                               }
-                                          ]
+                                          ],
+                                          "should": k
                                       }
                                   }
                               }
                           }
                         }
                     };
-                    if (req.body.trackerName){
+                    /*if (req.body.trackerName){
                         if (req.body.trackerName.length>0){
                             body['type'] = req.body.trackerName.join(',');
                         }
-                    }
+                    }*/
                     //console.log(JSON.stringify(body,null,2))
                     esClient.search(body,
                     function(err,resp){
@@ -478,6 +663,65 @@ module.exports = function(esClient){
                         }
                         else{
                             callback(null,{twitter:resp.hits.total});
+                        }
+                    });
+                }
+                else callback(null, []);
+            },
+            function(callback) {
+                if (source.indexOf('facebook')>-1){
+                    var sentiment = [];
+                    if (req.body.sentiment){
+                        sentiment = req.body.sentiment.length==0?['positive','negative','neutral']:req.body.sentiment;
+                    }
+                    else {
+                        sentiment = ['positive','negative','neutral']
+                    }
+
+                    var body = {
+                        index: 'facebook_classify',
+                        body:{
+                          "size":0,
+                          "query": {
+                              "constant_score" : {
+                                  "filter" : {
+                                      "bool": {
+                                          "must": [
+                                              {
+                                                  "range" : {
+                                                      "date" : {
+                                                          "gte" : req.body.startPeriod+" 00:00:00",
+                                                          "lte" : req.body.endPeriod+" 23:59:59"
+                                                      }
+                                                  }
+                                              },
+                                              {
+                                                  "terms": {
+                                                      "sentiment": sentiment
+                                                  }
+                                              }
+                                          ],
+                                          "should": k2
+                                      }
+                                  }
+                              }
+                          }
+                        }
+                    };
+                    /*if (req.body.trackerName){
+                        if (req.body.trackerName.length>0){
+                            body['type'] = req.body.trackerName.join(',');
+                        }
+                    }*/
+                    //console.log(JSON.stringify(body,null,2))
+                    esClient.search(body,
+                    function(err,resp){
+                        if(err){
+                            console.log(err);
+                            callback(err,'');
+                        }
+                        else{
+                            callback(null,{facebook:resp.hits.total});
                         }
                     });
                 }
@@ -560,6 +804,22 @@ module.exports = function(esClient){
         var exclude = ['co','amp','com','go','ga','https']
         var retval = [];
         var source = req.body.source?req.body.source:[]
+        k = []
+        k2 = []
+        if (req.body.keywords.length>0){
+            for(var i=0;i<req.body.keywords.split(',').length;i++){
+                k.push({
+                    "term": {
+                        "keywords": req.body.keywords.split(',')[i].trim()
+                    }
+                })
+                k2.push({
+                    "term": {
+                        "keyword": req.body.keywords.split(',')[i].trim()
+                    }
+                })
+            }
+        }
         async.parallel([
             function(callback) {
                 if (source.indexOf('twitter')>-1){
@@ -594,18 +854,19 @@ module.exports = function(esClient){
                                                       "sentiment": sentiment
                                                   }
                                               }
-                                          ]
+                                          ],
+                                          "should": k
                                       }
                                   }
                               }
                           }
                         }
                     };
-                    if (req.body.trackerName){
+                    /*if (req.body.trackerName){
                         if (req.body.trackerName.length>0){
                             body['type'] = req.body.trackerName.join(',');
                         }
-                    }
+                    }*/
                     //console.log(JSON.stringify(body,null,2))
                     esClient.search(body,
                     function(err,resp){
@@ -626,7 +887,84 @@ module.exports = function(esClient){
                                     text: resp.hits.hits[i]._source.text,
                                     id: resp.hits.hits[i]._id,
                                     url: 'https://twitter.com/statuses/'+resp.hits.hits[i]._source.id,
-                                    source: 'twitter'
+                                    source: 'twitter',
+                                    total: resp.hits.total
+                                })
+                            }
+                            callback(null,a);
+                        }
+                    });
+                }
+                else callback(null, []);
+            },
+            function(callback) {
+                if (source.indexOf('facebook')>-1){
+                    var sentiment = [];
+                    if (req.body.sentiment){
+                        sentiment = req.body.sentiment.length==0?['positive','negative','neutral']:req.body.sentiment;
+                    }
+                    else {
+                        sentiment = ['positive','negative','neutral']
+                    }
+
+                    var body = {
+                        index: 'facebook_classify',
+                        body:{
+                          "from":req.body.from,
+                          "size":req.body.size,
+                          "query": {
+                              "constant_score" : {
+                                  "filter" : {
+                                      "bool": {
+                                          "must": [
+                                              {
+                                                  "range" : {
+                                                      "date" : {
+                                                          "gte" : req.body.startPeriod+" 00:00:00",
+                                                          "lte" : req.body.endPeriod+" 23:59:59"
+                                                      }
+                                                  }
+                                              },
+                                              {
+                                                  "terms": {
+                                                      "sentiment": sentiment
+                                                  }
+                                              }
+                                          ],
+                                          "should": k2
+                                      }
+                                  }
+                              }
+                          }
+                        }
+                    };
+                    /*if (req.body.trackerName){
+                        if (req.body.trackerName.length>0){
+                            body['type'] = req.body.trackerName.join(',');
+                        }
+                    }*/
+                    //console.log(JSON.stringify(body,null,2))
+                    esClient.search(body,
+                    function(err,resp){
+                        if(err){
+                            console.log(err);
+                            callback(err,'');
+                        }
+                        else{
+                            var a = [];
+                            for (var i=0;i<resp.hits.hits.length;i++){
+                                a.push({
+                                    img:'assets/images/usight/facebook_small.png',
+                                    user_name: resp.hits.hits[i]._source.about.name,
+                                    screen_name: resp.hits.hits[i]._source.about.name,
+                                    user_id: resp.hits.hits[i]._source.about.id,
+                                    sentiment: resp.hits.hits[i]._source.sentiment,
+                                    dt: resp.hits.hits[i]._source.date,
+                                    text: resp.hits.hits[i]._source.post_message,
+                                    id: resp.hits.hits[i]._id,
+                                    url: 'https://facebook.com/'+resp.hits.hits[i]._source.about.name+'/posts/'+resp.hits.hits[i]._source.post_id,
+                                    source: 'facebook',
+                                    total: resp.hits.total
                                 })
                             }
                             callback(null,a);
@@ -694,7 +1032,8 @@ module.exports = function(esClient){
                                     text: resp.hits.hits[i]._source.review.body,
                                     id: resp.hits.hits[i]._id,
                                     url:resp.hits.hits[i]._source.url,
-                                    source:'news'
+                                    source:'news',
+                                    total: resp.hits.total
                                 })
                             }
                             callback(null,a);
@@ -716,9 +1055,472 @@ module.exports = function(esClient){
 
             res.send({type:'success',message:r})
         });
+    });
+
+    app.post('/buzz', function (req, res) {
+        console.log(req.body)
+        var retval = {
+            facebook:[],
+            twitter:[],
+            instagram:[],
+            news:[],
+            playstore: []
+        };
+        k = []
+        k2 = []
+        if (req.body.keywords.length>0){
+            for(var i=0;i<req.body.keywords.split(',').length;i++){
+                k.push({
+                    "term": {
+                        "keywords": req.body.keywords.split(',')[i].trim()
+                    }
+                })
+                k2.push({
+                    "term": {
+                        "keyword": req.body.keywords.split(',')[i].trim()
+                    }
+                })
+            }
+        }
+
+        var source = req.body.source?req.body.source:[]
+        async.parallel([
+            function(callback) {
+                if (source.indexOf('twitter')>-1){
+                    var sentiment = [];
+                    if (req.body.sentiment){
+                        sentiment = req.body.sentiment.length==0?['positive','negative','neutral']:req.body.sentiment;
+                    }
+                    else {
+                        sentiment = ['positive','negative','neutral']
+                    }
+
+                    var body = {
+                        index: 'twitter_classify',
+                        body:{
+                          "size":0,
+                          "query": {
+                              "constant_score" : {
+                                  "filter" : {
+                                      "bool": {
+                                          "must": [
+                                              {
+                                                  "range" : {
+                                                      "date" : {
+                                                          "gte" : req.body.startPeriod+" 00:00:00",
+                                                          "lte" : req.body.endPeriod+" 23:59:59"
+                                                      }
+                                                  }
+                                              },
+                                              {
+                                                  "terms": {
+                                                      "sentiment": sentiment
+                                                  }
+                                              }
+                                          ],
+                                          "should": k
+                                      }
+                                  }
+                              }
+                          },
+                          "aggs" : {
+                              "data" : {
+                                  "date_histogram" : {
+                                      "field" : "date",
+                                      "interval" : "1d"
+                                  },
+                                  "aggs": {
+                                      "rt": {
+                                          "sum": {
+                                              "field": "retweet_count"
+                                          }
+                                      },
+                                      "fav": {
+                                          "sum": {
+                                              "field": "favorite_count"
+                                          }
+                                      },
+                                      "total" : {
+                                          "value_count" : {
+                                              "field" : "id"
+                                          }
+                                      }
+                                  }
+                              }
+                          }
+
+                        }
+                    };
+                    /*if (req.body.trackerName){
+                        if (req.body.trackerName.length>0){
+                            body['type'] = req.body.trackerName.join(',');
+                        }
+                    }*/
+                    //console.log(JSON.stringify(body,null,2))
+                    esClient.search(body,
+                    function(err,resp){
+                        if(err){
+                            console.log(err);
+                            callback(err,'');
+                        }
+                        else{
+                            var bt = resp.aggregations.data.buckets;
+                            var arr = []
+                            for (var i=0;i<bt.length;i++){
+                                arr.push({
+                                    dt: bt[i].key_as_string.split(' ')[0],
+                                    total: (bt[i].rt.value+bt[i].total.value+bt[i].fav.value)
+                                })
+                            }
+                            callback(null,{twitter:arr});
+                        }
+                    });
+                }
+                else callback(null, []);
+            },
+            function(callback) {
+                if (source.indexOf('facebook')>-1){
+                    var sentiment = [];
+                    if (req.body.sentiment){
+                        sentiment = req.body.sentiment.length==0?['positive','negative','neutral']:req.body.sentiment;
+                    }
+                    else {
+                        sentiment = ['positive','negative','neutral']
+                    }
+
+                    var body = {
+                        index: 'facebook_classify',
+                        body:{
+                          "size":0,
+                          "query": {
+                              "constant_score" : {
+                                  "filter" : {
+                                      "bool": {
+                                          "must": [
+                                              {
+                                                  "range" : {
+                                                      "date" : {
+                                                          "gte" : req.body.startPeriod+" 00:00:00",
+                                                          "lte" : req.body.endPeriod+" 23:59:59"
+                                                      }
+                                                  }
+                                              },
+                                              {
+                                                  "terms": {
+                                                      "sentiment": sentiment
+                                                  }
+                                              }
+                                          ],
+                                          "should": k2
+                                      }
+                                  }
+                              }
+                          },
+                          "aggs" : {
+                                "data" : {
+                                    "date_histogram" : {
+                                        "field" : "date",
+                                        "interval" : "1d"
+                                    },
+                                    "aggs": {
+                                        "total" : {
+                                            "value_count" : {
+                                                "field" : "id"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    };
+                    /*if (req.body.trackerName){
+                        if (req.body.trackerName.length>0){
+                            body['type'] = req.body.trackerName.join(',');
+                        }
+                    }*/
+                    //console.log(JSON.stringify(body,null,2))
+                    esClient.search(body,
+                    function(err,resp){
+                        if(err){
+                            console.log(err);
+                            callback(err,'');
+                        }
+                        else{
+                            var bt = resp.aggregations.data.buckets;
+                            var arr = []
+                            for (var i=0;i<bt.length;i++){
+                                arr.push({
+                                    dt: bt[i].key_as_string.split(' ')[0],
+                                    total: bt[i].total.value
+                                })
+                            }
+                            callback(null,{facebook:arr});
+                            //callback(null,{facebook:resp.hits.total});
+                        }
+                    });
+                }
+                else callback(null, []);
+            }
+        ],
+        function(err, results) {
+            console.log('buzz',results);
+            var r = [];
+            for (var i=0;i<results.length;i++){
+                for (var j=0;j<results[i].length;j++){
+                    r.push(results[i][j])
+                }
+            }
+            console.log(r)
+            for (var i=0;i<results.length;i++){
+                retval[Object.keys(results[i])] = results[i][Object.keys(results[i])]
+            }
+            res.send({type:'success',message:retval})
+
+
+        });
+
 
     });
 
+    app.post('/category', function (req, res) {
+        console.log(req.body)
+        var retval = {
+            other:{positive:0,negative:0,neutral:0},
+            informasi: {positive:0,negative:0,neutral:0},
+            aplikasi: {positive:0,negative:0,neutral:0},
+            fitur: {positive:0,negative:0,neutral:0},
+            promosi: {positive:0,negative:0,neutral:0},
+            pengiriman: {positive:0,negative:0,neutral:0},
+            pembelian: {positive:0,negative:0,neutral:0},
+            payment: {positive:0,negative:0,neutral:0}
+        }
+        var source = req.body.source?req.body.source:[]
+        k = []
+        k2 = []
+        if (req.body.keywords.length>0){
+            for(var i=0;i<req.body.keywords.split(',').length;i++){
+                k.push({
+                    "term": {
+                        "keywords": req.body.keywords.split(',')[i].trim()
+                    }
+                })
+                k2.push({
+                    "term": {
+                        "keyword": req.body.keywords.split(',')[i].trim()
+                    }
+                })
+            }
+        }
+        async.parallel([
+            function(callback) {
+                if (source.indexOf('twitter')>-1){
+                    var sentiment = [];
+                    if (req.body.sentiment){
+                        sentiment = req.body.sentiment.length==0?['positive','negative','neutral']:req.body.sentiment;
+                    }
+                    else {
+                        sentiment = ['positive','negative','neutral']
+                    }
+
+                    var body = {
+                        index: 'twitter_classify',
+                        body:{
+                          "size":0,
+                          "query": {
+                              "constant_score" : {
+                                  "filter" : {
+                                      "bool": {
+                                          "must": [
+                                              {
+                                                  "range" : {
+                                                      "date" : {
+                                                          "gte" : req.body.startPeriod+" 00:00:00",
+                                                          "lte" : req.body.endPeriod+" 23:59:59"
+                                                      }
+                                                  }
+                                              },
+                                              {
+                                                  "terms": {
+                                                      "sentiment": sentiment
+                                                  }
+                                              }
+                                          ],
+                                          "should": k
+                                      }
+                                  }
+                              }
+                          },
+                          "aggs": {
+                                "cat": {
+                                  "terms": {
+                                    "field": "category"
+                                    },
+                                    "aggs": {
+                                        "sentiment": {
+                                          "terms": {
+                                            "field": "sentiment"
+                                            }
+                                        }
+                                      }
+                                }
+                            }
+                        }
+                    };
+                    /*if (req.body.trackerName){
+                        if (req.body.trackerName.length>0){
+                            body['type'] = req.body.trackerName.join(',');
+                        }
+                    }*/
+                    //console.log(JSON.stringify(body,null,2))
+                    esClient.search(body,
+                    function(err,resp){
+                        if(err){
+                            console.log(err);
+                            callback(err,'');
+                        }
+                        else{
+                            var b = resp.aggregations.cat.buckets;
+                            var c = {
+                                other:{positive:0,negative:0,neutral:0},
+                                informasi: {positive:0,negative:0,neutral:0},
+                                aplikasi: {positive:0,negative:0,neutral:0},
+                                fitur: {positive:0,negative:0,neutral:0},
+                                promosi: {positive:0,negative:0,neutral:0},
+                                pengiriman: {positive:0,negative:0,neutral:0},
+                                pembelian: {positive:0,negative:0,neutral:0},
+                                payment: {positive:0,negative:0,neutral:0}
+                            }
+                            for (var i=0;i<b.length;i++){
+                                for (var j=0;j<b[i].sentiment.buckets.length;j++){
+                                    c[b[i].key][b[i].sentiment.buckets[j].key] = b[i].sentiment.buckets[j].doc_count;
+                                }
+                            }
+                            var a = retval;
+                            callback(null,c);
+                        }
+                    });
+                }
+                else callback(null, []);
+            },
+            function(callback) {
+                if (source.indexOf('facebook')>-1){
+                    var sentiment = [];
+                    if (req.body.sentiment){
+                        sentiment = req.body.sentiment.length==0?['positive','negative','neutral']:req.body.sentiment;
+                    }
+                    else {
+                        sentiment = ['positive','negative','neutral']
+                    }
+
+                    var body = {
+                        index: 'facebook_classify',
+                        body:{
+                          "size":0,
+                          "query": {
+                              "constant_score" : {
+                                  "filter" : {
+                                      "bool": {
+                                          "must": [
+                                              {
+                                                  "range" : {
+                                                      "date" : {
+                                                          "gte" : req.body.startPeriod+" 00:00:00",
+                                                          "lte" : req.body.endPeriod+" 23:59:59"
+                                                      }
+                                                  }
+                                              },
+                                              {
+                                                  "terms": {
+                                                      "sentiment": sentiment
+                                                  }
+                                              }
+                                          ],
+                                          "should": k2
+                                      }
+                                  }
+                              }
+                          },
+                          "aggs": {
+                                "cat": {
+                                  "terms": {
+                                    "field": "category"
+                                    },
+                                    "aggs": {
+                                        "sentiment": {
+                                          "terms": {
+                                            "field": "sentiment"
+                                            }
+                                        }
+                                      }
+                                }
+                            }
+                        }
+                    };
+                    /*if (req.body.trackerName){
+                        if (req.body.trackerName.length>0){
+                            body['type'] = req.body.trackerName.join(',');
+                        }
+                    }*/
+                    //console.log(JSON.stringify(body,null,2))
+                    esClient.search(body,
+                    function(err,resp){
+                        if(err){
+                            console.log(err);
+                            callback(err,'');
+                        }
+                        else{
+                            var b = resp.aggregations.cat.buckets;
+                            console.log('cat fb', JSON.stringify(b,null,2))
+                            var c = {
+                                other:{positive:0,negative:0,neutral:0},
+                                informasi: {positive:0,negative:0,neutral:0},
+                                aplikasi: {positive:0,negative:0,neutral:0},
+                                fitur: {positive:0,negative:0,neutral:0},
+                                promosi: {positive:0,negative:0,neutral:0},
+                                pengiriman: {positive:0,negative:0,neutral:0},
+                                pembelian: {positive:0,negative:0,neutral:0},
+                                payment: {positive:0,negative:0,neutral:0}
+                            }
+                            for (var i=0;i<b.length;i++){
+                                for (var j=0;j<b[i].sentiment.buckets.length;j++){
+                                    c[b[i].key][b[i].sentiment.buckets[j].key] = b[i].sentiment.buckets[j].doc_count;
+                                }
+                            }
+                            var a = retval;
+                            callback(null,c);
+                        }
+                    });
+                }
+                else callback(null, []);
+            }
+        ],
+        function(err, results) {
+            console.log('category',results);
+            var r = [];
+            for (var i=0;i<results.length;i++){
+                for (var key in results[i]){
+                    retval[key].positive = retval[key].positive = results[i][key].positive
+                    retval[key].negative = retval[key].negative = results[i][key].negative
+                    retval[key].neutral = retval[key].neutral = results[i][key].neutral
+                }
+            }
+            //console.log(r)
+            /*var s = {neutral:0,negative:0,positive:0}
+            for (var i=0;i<r.length;i++){
+                if (r[i].key=='neutral') s.neutral+=r[i].doc_count
+                else if (r[i].key=='negative') s.negative+=r[i].doc_count
+                else if (r[i].key=='positive') s.positive+=r[i].doc_count
+            }
+            var retval = []
+            for (var key in s){
+                retval.push({key:key,doc_count:s[key]})
+            }*/
+            res.send({type:'success',message:retval})
+
+
+        });
+
+    });
 
     return app;
 }

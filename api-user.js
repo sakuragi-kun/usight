@@ -38,6 +38,7 @@ module.exports = function(esClient,jwt,transporter,mailerConfig){
                         mailOptions.subject = 'Usight.id mail confirmation';
                         mailOptions.html = '<b>Thanks for using Usight, please follow URL bellow to confirm your email</b><br />'+
                             'http://app.usight.id/confirmation?p='+body.token;
+                        console.log(JSON.stringify(mailOptions))
 
                         transporter.sendMail(mailOptions, function(error, info){
                             if(error){

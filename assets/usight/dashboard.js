@@ -36,7 +36,7 @@ $(function() {
     START WORDCLOUD BLOCK
     https://bl.ocks.org/blockspring/847a40e23f68d6d7e8b5
     */
-    $.post(api+'/api/wordCloud',{project:'',max:50,total:150,keywords:keyword.join(',')},function(e,r){
+    $.post(api+'/api/wordCloud',{project:'',max:80,total:250,keywords:keyword.join(',')},function(e,r){
         console.log('aa',e)
         console.log('ab',r)
         drawWordCloud(e.message);
@@ -120,15 +120,15 @@ $(function() {
 
     }
 
-    $.post(api+'/api/agg_date',{project:'',start:todayMin,end:today},function(d){
+    $.post(api+'/api/agg_date',{project:'',start:todayMin,end:today,keywords:keyword.join(',')},function(d){
         console.log('agg_Date aa',d);
         var objDate = {
             twitter:{},
-            news: {}
+            facebook: {}
         }
         for (var i=0;i<arrDate.length;i++){
             objDate.twitter[arrDate[i]] = 0;
-            objDate.news[arrDate[i]] = 0;
+            objDate.facebook[arrDate[i]] = 0;
         }
         if (d.type=='success'){
             for (var i=0;i<arrDate.length;i++){
@@ -137,9 +137,9 @@ $(function() {
                         objDate.twitter[arrDate[i]] = d.message.twitter[j].doc_count;
                     }
                 }
-                for (var j=0;j<d.message.news.length;j++){
-                    if(d.message.news[j].key_as_string.indexOf(arrDate[i])>-1){
-                        objDate.news[arrDate[i]] = d.message.news[j].doc_count;
+                for (var j=0;j<d.message.facebook.length;j++){
+                    if(d.message.facebook[j].key_as_string.indexOf(arrDate[i])>-1){
+                        objDate.facebook[arrDate[i]] = d.message.facebook[j].doc_count;
                     }
                 }
             }
@@ -225,7 +225,7 @@ $(function() {
     // ------------------------------
 
     // Generate chart
-    $.post(api+'/api/sentiment',{project:''},function(e,r){
+    $.post(api+'/api/sentiment',{project:'',keywords:keyword.join(',')},function(e,r){
         console.log('sentiment',e)
         console.log('ab',r)
         drawPie(e.message);
@@ -274,7 +274,7 @@ $(function() {
     // ------------------------------
 
     // Generate chart
-    $.post(api+'/api/sums_up',{project:''},function(e,r){
+    $.post(api+'/api/sums_up',{project:'',keywords:keyword.join(',')},function(e,r){
         console.log('aa',e)
         console.log('ab',r)
         barChart(e.message);
@@ -339,6 +339,32 @@ $(function() {
             .attr("height", 20);
         });
     }
+
+    $.post(api+'/api/top5',{project:'',keywords:keyword.join(',')},function(e,r){
+        console.log('top5e',e)
+        console.log('top5r',r);
+        var html = [];
+        for(var i=0;i<e.message.length;i++){
+            html.push('<div class="col-lg-12 col-md-12" style="padding-left:0px;padding-right:0px;">',
+                '<div class="panel panel-body" style="padding:5px;margin-bottom:10px;">',
+                    '<div class="media">',
+                        '<div class="media-left">',
+                            '<a href="'+e.message[i].image+'" data-popup="lightbox">',
+                                '<img src="'+e.message[i].image+'" class="img-circle" alt="">',
+                            '</a>',
+                        '</div>',
+                        '<div class="media-body">',
+                            '<span class="media-heading" style="margin-top:10px">'+e.message[i].screen_name+'</span>',
+                        '</div>',
+                    '</div>',
+                '</div>',
+            '</div>')
+        }
+        console.log(html)
+        $('#top5').html(html.join(' '))
+
+    });
+
 
 
     // Initialize lightbox
