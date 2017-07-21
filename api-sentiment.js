@@ -31,195 +31,129 @@ module.exports = function(esClient){
         async.parallel([
             function(callback) {
                 if (source.indexOf('twitter')>-1){
-                    var sentiment = [];
-                    if (req.body.sentiment){
-                        sentiment = req.body.sentiment.length==0?['positive','negative','neutral']:req.body.sentiment;
-                    }
+                    if (k.length==0) callback('nokeyword',[])
                     else {
-                        sentiment = ['positive','negative','neutral']
-                    }
+                        var sentiment = [];
+                        if (req.body.sentiment){
+                            sentiment = req.body.sentiment.length==0?['positive','negative','neutral']:req.body.sentiment;
+                        }
+                        else {
+                            sentiment = ['positive','negative','neutral']
+                        }
 
-                    var body = {
-                        index: 'twitter_classify',
-                        body:{
-                          "size":0,
-                          "query": {
-                              "constant_score" : {
-                                  "filter" : {
-                                      "bool": {
-                                          "must": [
-                                              {
-                                                  "range" : {
-                                                      "date" : {
-                                                          "gte" : req.body.startPeriod+" 00:00:00",
-                                                          "lte" : req.body.endPeriod+" 23:59:59"
+                        var body = {
+                            index: 'twitter_classify',
+                            body:{
+                              "size":0,
+                              "query": {
+                                  "constant_score" : {
+                                      "filter" : {
+                                          "bool": {
+                                              "must": [
+                                                  {
+                                                      "range" : {
+                                                          "date" : {
+                                                              "gte" : req.body.startPeriod+" 00:00:00",
+                                                              "lte" : req.body.endPeriod+" 23:59:59"
+                                                          }
+                                                      }
+                                                  },
+                                                  {
+                                                      "terms": {
+                                                          "sentiment": sentiment
                                                       }
                                                   }
-                                              },
-                                              {
-                                                  "terms": {
-                                                      "sentiment": sentiment
-                                                  }
-                                              }
-                                          ],
-                                          "should": k
+                                              ],
+                                              "should": k
+                                          }
                                       }
                                   }
-                              }
-                          },
-                          "aggs": {
-                            "wordcloud": {
-                              "terms": {
-                                "field": "keywords",
-                                "size": 100
+                              },
+                              "aggs": {
+                                "wordcloud": {
+                                  "terms": {
+                                    "field": "keywords",
+                                    "size": 100
+                                    }
                                 }
+                              }
                             }
-                          }
-                        }
-                    };
-                    /*if (req.body.trackerName){
-                        if (req.body.trackerName.length>0){
-                            body['type'] = req.body.trackerName.join(',');
-                        }
-                    }*/
-                    //console.log(JSON.stringify(body,null,2))
-                    esClient.search(body,
-                    function(err,resp){
-                        if(err){
-                            console.log(err);
-                            callback(err,'');
-                        }
-                        else{
-                            callback(null,resp.aggregations.wordcloud.buckets);
-                        }
-                    });
+                        };
+                        esClient.search(body,
+                        function(err,resp){
+                            if(err){
+                                console.log(err);
+                                callback(err,'');
+                            }
+                            else{
+                                callback(null,resp.aggregations.wordcloud.buckets);
+                            }
+                        });
+                    }
                 }
                 else callback(null, []);
             },
             function(callback) {
                 if (source.indexOf('facebook')>-1){
-                    var sentiment = [];
-                    if (req.body.sentiment){
-                        sentiment = req.body.sentiment.length==0?['positive','negative','neutral']:req.body.sentiment;
-                    }
+                    if (k.length==0) callback('nokeyword',[])
                     else {
-                        sentiment = ['positive','negative','neutral']
-                    }
+                        var sentiment = [];
+                        if (req.body.sentiment){
+                            sentiment = req.body.sentiment.length==0?['positive','negative','neutral']:req.body.sentiment;
+                        }
+                        else {
+                            sentiment = ['positive','negative','neutral']
+                        }
 
-                    var body = {
-                        index: 'facebook_classify',
-                        body:{
-                          "size":0,
-                          "query": {
-                              "constant_score" : {
-                                  "filter" : {
-                                      "bool": {
-                                          "must": [
-                                              {
-                                                  "range" : {
-                                                      "date" : {
-                                                          "gte" : req.body.startPeriod+" 00:00:00",
-                                                          "lte" : req.body.endPeriod+" 23:59:59"
+                        var body = {
+                            index: 'facebook_classify',
+                            body:{
+                              "size":0,
+                              "query": {
+                                  "constant_score" : {
+                                      "filter" : {
+                                          "bool": {
+                                              "must": [
+                                                  {
+                                                      "range" : {
+                                                          "date" : {
+                                                              "gte" : req.body.startPeriod+" 00:00:00",
+                                                              "lte" : req.body.endPeriod+" 23:59:59"
+                                                          }
+                                                      }
+                                                  },
+                                                  {
+                                                      "terms": {
+                                                          "sentiment": sentiment
                                                       }
                                                   }
-                                              },
-                                              {
-                                                  "terms": {
-                                                      "sentiment": sentiment
-                                                  }
-                                              }
-                                          ],
-                                          "should": k2
+                                              ],
+                                              "should": k2
+                                          }
                                       }
                                   }
-                              }
-                          },
-                          "aggs": {
-                            "wordcloud": {
-                              "terms": {
-                                "field": "keyword",
-                                "size": 40
+                              },
+                              "aggs": {
+                                "wordcloud": {
+                                  "terms": {
+                                    "field": "keyword",
+                                    "size": 40
+                                    }
                                 }
-                            }
-                          }
-                        }
-                    };
-                    /*if (req.body.trackerName){
-                        if (req.body.trackerName.length>0){
-                            body['type'] = req.body.trackerName.join(',');
-                        }
-                    }*/
-                    //console.log(JSON.stringify(body,null,2))
-                    esClient.search(body,
-                    function(err,resp){
-                        if(err){
-                            console.log(err);
-                            callback(err,'');
-                        }
-                        else{
-                            callback(null,resp.aggregations.wordcloud.buckets);
-                        }
-                    });
-                }
-                else callback(null, []);
-            },
-            function(callback) {
-                if (source.indexOf('news')>-1){
-                    var sentiment = [];
-                    if (req.body.sentiment){
-                        sentiment = req.body.sentiment.length==0?['positive','negative','neutral']:req.body.sentiment;
-                    }
-                    else {
-                        sentiment = ['positive','negative','neutral']
-                    }
-
-                    var body = {
-                        index: 'bukalapak',
-                        body:{
-                          "size":0,
-                          "query": {
-                              "constant_score" : {
-                                  "filter" : {
-                                      "bool": {
-                                          "must": [
-                                              {
-                                                  "range" : {
-                                                      "rdate" : {
-                                                          "gte" : req.body.startPeriod+" 00:00:00",
-                                                          "lte" : req.body.endPeriod+" 23:59:59"
-                                                      }
-                                                  }
-                                              },
-                                              {
-                                                  "terms": {
-                                                      "sentiment_bl": sentiment
-                                                  }
-                                              }
-                                          ]
-                                      }
-                                  }
                               }
-                          },
-                          "aggs": {
-                            "wordcloud": {
-                              "terms": {
-                                "field": "keywords",
-                                "size": 40
-                                }
                             }
-                          }
-                        }
-                    };
-                    esClient.search(body,
-                    function(err,resp){
-                        if(err){
-                            console.log(err);
-                            callback(err,'');
-                        }
-                        else{
-                            callback(null,resp.aggregations.wordcloud.buckets);
-                        }
-                    });
+                        };
+                        esClient.search(body,
+                        function(err,resp){
+                            if(err){
+                                console.log(err);
+                                callback(err,'');
+                            }
+                            else{
+                                callback(null,resp.aggregations.wordcloud.buckets);
+                            }
+                        });
+                    }
                 }
                 else callback(null, []);
             }
@@ -286,192 +220,191 @@ module.exports = function(esClient){
         async.parallel([
             function(callback) {
                 if (source.indexOf('twitter')>-1){
-                    var sentiment = [];
-                    if (req.body.sentiment){
-                        sentiment = req.body.sentiment.length==0?['positive','negative','neutral']:req.body.sentiment;
-                    }
+                    if (k.length==0) callback('nokeyword',[])
                     else {
-                        sentiment = ['positive','negative','neutral']
-                    }
+                        var sentiment = [];
+                        if (req.body.sentiment){
+                            sentiment = req.body.sentiment.length==0?['positive','negative','neutral']:req.body.sentiment;
+                        }
+                        else {
+                            sentiment = ['positive','negative','neutral']
+                        }
 
-                    var body = {
-                        index: 'twitter_classify',
-                        body:{
-                          "size":0,
-                          "query": {
-                              "constant_score" : {
-                                  "filter" : {
-                                      "bool": {
-                                          "must": [
-                                              {
-                                                  "range" : {
-                                                      "date" : {
-                                                          "gte" : req.body.startPeriod+" 00:00:00",
-                                                          "lte" : req.body.endPeriod+" 23:59:59"
+                        var body = {
+                            index: 'twitter_classify',
+                            body:{
+                              "size":0,
+                              "query": {
+                                  "constant_score" : {
+                                      "filter" : {
+                                          "bool": {
+                                              "must": [
+                                                  {
+                                                      "range" : {
+                                                          "date" : {
+                                                              "gte" : req.body.startPeriod+" 00:00:00",
+                                                              "lte" : req.body.endPeriod+" 23:59:59"
+                                                          }
+                                                      }
+                                                  },
+                                                  {
+                                                      "terms": {
+                                                          "sentiment": sentiment
                                                       }
                                                   }
-                                              },
-                                              {
-                                                  "terms": {
-                                                      "sentiment": sentiment
-                                                  }
-                                              }
-                                          ],
-                                          "should": k
+                                              ],
+                                              "should": k
+                                          }
                                       }
                                   }
-                              }
-                          },
-                          "aggs": {
-                            "sentiment": {
-                              "terms": {
-                                "field": "sentiment"
+                              },
+                              "aggs": {
+                                "sentiment": {
+                                  "terms": {
+                                    "field": "sentiment"
+                                    }
                                 }
+                              }
                             }
-                          }
-                        }
-                    };
-                    /*if (req.body.trackerName){
-                        if (req.body.trackerName.length>0){
-                            body['type'] = req.body.trackerName.join(',');
-                        }
-                    }*/
-                    //console.log(JSON.stringify(body,null,2))
-                    esClient.search(body,
-                    function(err,resp){
-                        if(err){
-                            console.log(err);
-                            callback(err,'');
-                        }
-                        else{
-                            callback(null,resp.aggregations.sentiment.buckets);
-                        }
-                    });
+                        };
+                        esClient.search(body,
+                        function(err,resp){
+                            if(err){
+                                console.log(err);
+                                callback(err,'');
+                            }
+                            else{
+                                callback(null,resp.aggregations.sentiment.buckets);
+                            }
+                        });
+                    }
+
                 }
                 else callback(null, []);
             },
             function(callback) {
                 if (source.indexOf('facebook')>-1){
-                    var sentiment = [];
-                    if (req.body.sentiment){
-                        sentiment = req.body.sentiment.length==0?['positive','negative','neutral']:req.body.sentiment;
-                    }
+                    if (k.length==0) callback('nokeyword',[])
                     else {
-                        sentiment = ['positive','negative','neutral']
-                    }
+                        var sentiment = [];
+                        if (req.body.sentiment){
+                            sentiment = req.body.sentiment.length==0?['positive','negative','neutral']:req.body.sentiment;
+                        }
+                        else {
+                            sentiment = ['positive','negative','neutral']
+                        }
 
-                    var body = {
-                        index: 'facebook_classify',
-                        body:{
-                          "size":0,
-                          "query": {
-                              "constant_score" : {
-                                  "filter" : {
-                                      "bool": {
-                                          "must": [
-                                              {
-                                                  "range" : {
-                                                      "date" : {
-                                                          "gte" : req.body.startPeriod+" 00:00:00",
-                                                          "lte" : req.body.endPeriod+" 23:59:59"
+                        var body = {
+                            index: 'facebook_classify',
+                            body:{
+                              "size":0,
+                              "query": {
+                                  "constant_score" : {
+                                      "filter" : {
+                                          "bool": {
+                                              "must": [
+                                                  {
+                                                      "range" : {
+                                                          "date" : {
+                                                              "gte" : req.body.startPeriod+" 00:00:00",
+                                                              "lte" : req.body.endPeriod+" 23:59:59"
+                                                          }
+                                                      }
+                                                  },
+                                                  {
+                                                      "terms": {
+                                                          "sentiment": sentiment
                                                       }
                                                   }
-                                              },
-                                              {
-                                                  "terms": {
-                                                      "sentiment": sentiment
-                                                  }
-                                              }
-                                          ],
-                                          "should": k2
+                                              ],
+                                              "should": k2
+                                          }
                                       }
                                   }
-                              }
-                          },
-                          "aggs": {
-                            "sentiment": {
-                              "terms": {
-                                "field": "sentiment"
+                              },
+                              "aggs": {
+                                "sentiment": {
+                                  "terms": {
+                                    "field": "sentiment"
+                                    }
                                 }
+                              }
                             }
-                          }
-                        }
-                    };
-                    /*if (req.body.trackerName){
-                        if (req.body.trackerName.length>0){
-                            body['type'] = req.body.trackerName.join(',');
-                        }
-                    }*/
-                    //console.log(JSON.stringify(body,null,2))
-                    esClient.search(body,
-                    function(err,resp){
-                        if(err){
-                            console.log(err);
-                            callback(err,'');
-                        }
-                        else{
-                            callback(null,resp.aggregations.sentiment.buckets);
-                        }
-                    });
+                        };
+                        esClient.search(body,
+                        function(err,resp){
+                            if(err){
+                                console.log(err);
+                                callback(err,'');
+                            }
+                            else{
+                                callback(null,resp.aggregations.sentiment.buckets);
+                            }
+                        });
+                    }
                 }
                 else callback(null, []);
             },
             function(callback) {
                 if (source.indexOf('news')>-1){
-                    var sentiment = [];
-                    if (req.body.sentiment){
-                        sentiment = req.body.sentiment.length==0?['positive','negative','neutral']:req.body.sentiment;
-                    }
+                    if (k.length==0) callback('nokeyword',[])
                     else {
-                        sentiment = ['positive','negative','neutral']
-                    }
+                        var sentiment = [];
+                        if (req.body.sentiment){
+                            sentiment = req.body.sentiment.length==0?['positive','negative','neutral']:req.body.sentiment;
+                        }
+                        else {
+                            sentiment = ['positive','negative','neutral']
+                        }
 
-                    var body = {
-                        index: 'bukalapak',
-                        body:{
-                          "size":0,
-                          "query": {
-                              "constant_score" : {
-                                  "filter" : {
-                                      "bool": {
-                                          "must": [
-                                              {
-                                                  "range" : {
-                                                      "rdate" : {
-                                                          "gte" : req.body.startPeriod+" 00:00:00",
-                                                          "lte" : req.body.endPeriod+" 23:59:59"
+                        var body = {
+                            index: 'bukalapak',
+                            body:{
+                              "size":0,
+                              "query": {
+                                  "constant_score" : {
+                                      "filter" : {
+                                          "bool": {
+                                              "must": [
+                                                  {
+                                                      "range" : {
+                                                          "rdate" : {
+                                                              "gte" : req.body.startPeriod+" 00:00:00",
+                                                              "lte" : req.body.endPeriod+" 23:59:59"
+                                                          }
+                                                      }
+                                                  },
+                                                  {
+                                                      "terms": {
+                                                          "sentiment_bl": sentiment
                                                       }
                                                   }
-                                              },
-                                              {
-                                                  "terms": {
-                                                      "sentiment_bl": sentiment
-                                                  }
-                                              }
-                                          ]
+                                              ]
+                                          }
                                       }
                                   }
-                              }
-                          },
-                          "aggs": {
-                            "sentiment": {
-                              "terms": {
-                                "field": "sentiment_bl"
+                              },
+                              "aggs": {
+                                "sentiment": {
+                                  "terms": {
+                                    "field": "sentiment_bl"
+                                    }
                                 }
+                              }
                             }
-                          }
-                        }
-                    };
-                    esClient.search(body,
-                    function(err,resp){
-                        if(err){
-                            console.log(errorSearch);
-                            callback(err,'');
-                        }
-                        else{
-                            callback(null,resp.aggregations.sentiment.buckets);
-                        }
-                    });
+                        };
+                        esClient.search(body,
+                        function(err,resp){
+                            if(err){
+                                console.log(errorSearch);
+                                callback(err,'');
+                            }
+                            else{
+                                callback(null,resp.aggregations.sentiment.buckets);
+                            }
+                        });
+                    }
+
                 }
                 else callback(null, []);
             }
@@ -611,171 +544,183 @@ module.exports = function(esClient){
         async.parallel([
             function(callback) {
                 if (source.indexOf('twitter')>-1){
-                    var sentiment = [];
-                    if (req.body.sentiment){
-                        sentiment = req.body.sentiment.length==0?['positive','negative','neutral']:req.body.sentiment;
-                    }
+                    if (k.length==0) callback('nokeyword',[])
                     else {
-                        sentiment = ['positive','negative','neutral']
-                    }
+                        var sentiment = [];
+                        if (req.body.sentiment){
+                            sentiment = req.body.sentiment.length==0?['positive','negative','neutral']:req.body.sentiment;
+                        }
+                        else {
+                            sentiment = ['positive','negative','neutral']
+                        }
 
-                    var body = {
-                        index: 'twitter_classify',
-                        body:{
-                          "size":0,
-                          "query": {
-                              "constant_score" : {
-                                  "filter" : {
-                                      "bool": {
-                                          "must": [
-                                              {
-                                                  "range" : {
-                                                      "date" : {
-                                                          "gte" : req.body.startPeriod+" 00:00:00",
-                                                          "lte" : req.body.endPeriod+" 23:59:59"
+                        var body = {
+                            index: 'twitter_classify',
+                            body:{
+                              "size":0,
+                              "query": {
+                                  "constant_score" : {
+                                      "filter" : {
+                                          "bool": {
+                                              "must": [
+                                                  {
+                                                      "range" : {
+                                                          "date" : {
+                                                              "gte" : req.body.startPeriod+" 00:00:00",
+                                                              "lte" : req.body.endPeriod+" 23:59:59"
+                                                          }
+                                                      }
+                                                  },
+                                                  {
+                                                      "terms": {
+                                                          "sentiment": sentiment
                                                       }
                                                   }
-                                              },
-                                              {
-                                                  "terms": {
-                                                      "sentiment": sentiment
-                                                  }
-                                              }
-                                          ],
-                                          "should": k
+                                              ],
+                                              "should": k
+                                          }
                                       }
                                   }
                               }
-                          }
-                        }
-                    };
-                    /*if (req.body.trackerName){
-                        if (req.body.trackerName.length>0){
-                            body['type'] = req.body.trackerName.join(',');
-                        }
-                    }*/
-                    //console.log(JSON.stringify(body,null,2))
-                    esClient.search(body,
-                    function(err,resp){
-                        if(err){
-                            console.log(err);
-                            callback(err,'');
-                        }
-                        else{
-                            callback(null,{twitter:resp.hits.total});
-                        }
-                    });
+                            }
+                        };
+                        /*if (req.body.trackerName){
+                            if (req.body.trackerName.length>0){
+                                body['type'] = req.body.trackerName.join(',');
+                            }
+                        }*/
+                        //console.log(JSON.stringify(body,null,2))
+                        esClient.search(body,
+                        function(err,resp){
+                            if(err){
+                                console.log(err);
+                                callback(err,'');
+                            }
+                            else{
+                                callback(null,{twitter:resp.hits.total});
+                            }
+                        });
+                    }
+
                 }
                 else callback(null, []);
             },
             function(callback) {
                 if (source.indexOf('facebook')>-1){
-                    var sentiment = [];
-                    if (req.body.sentiment){
-                        sentiment = req.body.sentiment.length==0?['positive','negative','neutral']:req.body.sentiment;
-                    }
+                    if (k.length==0) callback('nokeyword',[])
                     else {
-                        sentiment = ['positive','negative','neutral']
-                    }
+                        var sentiment = [];
+                        if (req.body.sentiment){
+                            sentiment = req.body.sentiment.length==0?['positive','negative','neutral']:req.body.sentiment;
+                        }
+                        else {
+                            sentiment = ['positive','negative','neutral']
+                        }
 
-                    var body = {
-                        index: 'facebook_classify',
-                        body:{
-                          "size":0,
-                          "query": {
-                              "constant_score" : {
-                                  "filter" : {
-                                      "bool": {
-                                          "must": [
-                                              {
-                                                  "range" : {
-                                                      "date" : {
-                                                          "gte" : req.body.startPeriod+" 00:00:00",
-                                                          "lte" : req.body.endPeriod+" 23:59:59"
+                        var body = {
+                            index: 'facebook_classify',
+                            body:{
+                              "size":0,
+                              "query": {
+                                  "constant_score" : {
+                                      "filter" : {
+                                          "bool": {
+                                              "must": [
+                                                  {
+                                                      "range" : {
+                                                          "date" : {
+                                                              "gte" : req.body.startPeriod+" 00:00:00",
+                                                              "lte" : req.body.endPeriod+" 23:59:59"
+                                                          }
+                                                      }
+                                                  },
+                                                  {
+                                                      "terms": {
+                                                          "sentiment": sentiment
                                                       }
                                                   }
-                                              },
-                                              {
-                                                  "terms": {
-                                                      "sentiment": sentiment
-                                                  }
-                                              }
-                                          ],
-                                          "should": k2
+                                              ],
+                                              "should": k2
+                                          }
                                       }
                                   }
                               }
-                          }
-                        }
-                    };
-                    /*if (req.body.trackerName){
-                        if (req.body.trackerName.length>0){
-                            body['type'] = req.body.trackerName.join(',');
-                        }
-                    }*/
-                    //console.log(JSON.stringify(body,null,2))
-                    esClient.search(body,
-                    function(err,resp){
-                        if(err){
-                            console.log(err);
-                            callback(err,'');
-                        }
-                        else{
-                            callback(null,{facebook:resp.hits.total});
-                        }
-                    });
+                            }
+                        };
+                        /*if (req.body.trackerName){
+                            if (req.body.trackerName.length>0){
+                                body['type'] = req.body.trackerName.join(',');
+                            }
+                        }*/
+                        //console.log(JSON.stringify(body,null,2))
+                        esClient.search(body,
+                        function(err,resp){
+                            if(err){
+                                console.log(err);
+                                callback(err,'');
+                            }
+                            else{
+                                callback(null,{facebook:resp.hits.total});
+                            }
+                        });
+                    }
+
                 }
                 else callback(null, []);
             },
             function(callback) {
                 if (source.indexOf('news')>-1){
-                    var sentiment = [];
-                    if (req.body.sentiment){
-                        sentiment = req.body.sentiment.length==0?['positive','negative','neutral']:req.body.sentiment;
-                    }
+                    if (k.length==0) callback('nokeyword',[])
                     else {
-                        sentiment = ['positive','negative','neutral']
-                    }
+                        var sentiment = [];
+                        if (req.body.sentiment){
+                            sentiment = req.body.sentiment.length==0?['positive','negative','neutral']:req.body.sentiment;
+                        }
+                        else {
+                            sentiment = ['positive','negative','neutral']
+                        }
 
-                    var body = {
-                        index: 'bukalapak',
-                        body:{
-                          "size":0,
-                          "query": {
-                              "constant_score" : {
-                                  "filter" : {
-                                      "bool": {
-                                          "must": [
-                                              {
-                                                  "range" : {
-                                                      "rdate" : {
-                                                          "gte" : req.body.startPeriod+" 00:00:00",
-                                                          "lte" : req.body.endPeriod+" 23:59:59"
+                        var body = {
+                            index: 'bukalapak',
+                            body:{
+                              "size":0,
+                              "query": {
+                                  "constant_score" : {
+                                      "filter" : {
+                                          "bool": {
+                                              "must": [
+                                                  {
+                                                      "range" : {
+                                                          "rdate" : {
+                                                              "gte" : req.body.startPeriod+" 00:00:00",
+                                                              "lte" : req.body.endPeriod+" 23:59:59"
+                                                          }
+                                                      }
+                                                  },
+                                                  {
+                                                      "terms": {
+                                                          "sentiment_bl": sentiment
                                                       }
                                                   }
-                                              },
-                                              {
-                                                  "terms": {
-                                                      "sentiment_bl": sentiment
-                                                  }
-                                              }
-                                          ]
+                                              ]
+                                          }
                                       }
                                   }
                               }
-                          }
-                        }
-                    };
-                    esClient.search(body,
-                    function(err,resp){
-                        if(err){
-                            console.log(err);
-                            callback(err,'');
-                        }
-                        else{
-                            callback(null,{'news':resp.hits.total});
-                        }
-                    });
+                            }
+                        };
+                        esClient.search(body,
+                        function(err,resp){
+                            if(err){
+                                console.log(err);
+                                callback(err,'');
+                            }
+                            else{
+                                callback(null,{'news':resp.hits.total});
+                            }
+                        });
+                    }
+
                 }
                 else callback(null, []);
             }
@@ -823,222 +768,234 @@ module.exports = function(esClient){
         async.parallel([
             function(callback) {
                 if (source.indexOf('twitter')>-1){
-                    var sentiment = [];
-                    if (req.body.sentiment){
-                        sentiment = req.body.sentiment.length==0?['positive','negative','neutral']:req.body.sentiment;
-                    }
+                    if (k.length==0) callback('nokeyword',[])
                     else {
-                        sentiment = ['positive','negative','neutral']
-                    }
+                        var sentiment = [];
+                        if (req.body.sentiment){
+                            sentiment = req.body.sentiment.length==0?['positive','negative','neutral']:req.body.sentiment;
+                        }
+                        else {
+                            sentiment = ['positive','negative','neutral']
+                        }
 
-                    var body = {
-                        index: 'twitter_classify',
-                        body:{
-                          "from":req.body.from,
-                          "size":req.body.size,
-                          "query": {
-                              "constant_score" : {
-                                  "filter" : {
-                                      "bool": {
-                                          "must": [
-                                              {
-                                                  "range" : {
-                                                      "date" : {
-                                                          "gte" : req.body.startPeriod+" 00:00:00",
-                                                          "lte" : req.body.endPeriod+" 23:59:59"
+                        var body = {
+                            index: 'twitter_classify',
+                            body:{
+                              "from":req.body.from,
+                              "size":req.body.size,
+                              "query": {
+                                  "constant_score" : {
+                                      "filter" : {
+                                          "bool": {
+                                              "must": [
+                                                  {
+                                                      "range" : {
+                                                          "date" : {
+                                                              "gte" : req.body.startPeriod+" 00:00:00",
+                                                              "lte" : req.body.endPeriod+" 23:59:59"
+                                                          }
+                                                      }
+                                                  },
+                                                  {
+                                                      "terms": {
+                                                          "sentiment": sentiment
                                                       }
                                                   }
-                                              },
-                                              {
-                                                  "terms": {
-                                                      "sentiment": sentiment
-                                                  }
-                                              }
-                                          ],
-                                          "should": k
+                                              ],
+                                              "should": k
+                                          }
                                       }
                                   }
                               }
-                          }
-                        }
-                    };
-                    /*if (req.body.trackerName){
-                        if (req.body.trackerName.length>0){
-                            body['type'] = req.body.trackerName.join(',');
-                        }
-                    }*/
-                    //console.log(JSON.stringify(body,null,2))
-                    esClient.search(body,
-                    function(err,resp){
-                        if(err){
-                            console.log(err);
-                            callback(err,'');
-                        }
-                        else{
-                            var a = [];
-                            for (var i=0;i<resp.hits.hits.length;i++){
-                                a.push({
-                                    img:resp.hits.hits[i]._source.user.profile_image_url,
-                                    user_name: resp.hits.hits[i]._source.user.name,
-                                    screen_name: resp.hits.hits[i]._source.user.screen_name,
-                                    user_id: resp.hits.hits[i]._source.user.id,
-                                    sentiment: resp.hits.hits[i]._source.sentiment,
-                                    dt: resp.hits.hits[i]._source.date,
-                                    text: resp.hits.hits[i]._source.text,
-                                    id: resp.hits.hits[i]._id,
-                                    url: 'https://twitter.com/statuses/'+resp.hits.hits[i]._source.id,
-                                    source: 'twitter',
-                                    total: resp.hits.total
-                                })
                             }
-                            callback(null,a);
-                        }
-                    });
+                        };
+                        /*if (req.body.trackerName){
+                            if (req.body.trackerName.length>0){
+                                body['type'] = req.body.trackerName.join(',');
+                            }
+                        }*/
+                        //console.log(JSON.stringify(body,null,2))
+                        esClient.search(body,
+                        function(err,resp){
+                            if(err){
+                                console.log(err);
+                                callback(err,'');
+                            }
+                            else{
+                                var a = [];
+                                for (var i=0;i<resp.hits.hits.length;i++){
+                                    a.push({
+                                        img:resp.hits.hits[i]._source.user.profile_image_url,
+                                        user_name: resp.hits.hits[i]._source.user.name,
+                                        screen_name: resp.hits.hits[i]._source.user.screen_name,
+                                        user_id: resp.hits.hits[i]._source.user.id,
+                                        sentiment: resp.hits.hits[i]._source.sentiment,
+                                        dt: resp.hits.hits[i]._source.date,
+                                        text: resp.hits.hits[i]._source.text,
+                                        id: resp.hits.hits[i]._id,
+                                        url: 'https://twitter.com/statuses/'+resp.hits.hits[i]._source.id,
+                                        source: 'twitter',
+                                        total: resp.hits.total
+                                    })
+                                }
+                                callback(null,a);
+                            }
+                        });
+                    }
+
                 }
                 else callback(null, []);
             },
             function(callback) {
                 if (source.indexOf('facebook')>-1){
-                    var sentiment = [];
-                    if (req.body.sentiment){
-                        sentiment = req.body.sentiment.length==0?['positive','negative','neutral']:req.body.sentiment;
-                    }
+                    if (k.length==0) callback('nokeyword',[])
                     else {
-                        sentiment = ['positive','negative','neutral']
-                    }
+                        var sentiment = [];
+                        if (req.body.sentiment){
+                            sentiment = req.body.sentiment.length==0?['positive','negative','neutral']:req.body.sentiment;
+                        }
+                        else {
+                            sentiment = ['positive','negative','neutral']
+                        }
 
-                    var body = {
-                        index: 'facebook_classify',
-                        body:{
-                          "from":req.body.from,
-                          "size":req.body.size,
-                          "query": {
-                              "constant_score" : {
-                                  "filter" : {
-                                      "bool": {
-                                          "must": [
-                                              {
-                                                  "range" : {
-                                                      "date" : {
-                                                          "gte" : req.body.startPeriod+" 00:00:00",
-                                                          "lte" : req.body.endPeriod+" 23:59:59"
+                        var body = {
+                            index: 'facebook_classify',
+                            body:{
+                              "from":req.body.from,
+                              "size":req.body.size,
+                              "query": {
+                                  "constant_score" : {
+                                      "filter" : {
+                                          "bool": {
+                                              "must": [
+                                                  {
+                                                      "range" : {
+                                                          "date" : {
+                                                              "gte" : req.body.startPeriod+" 00:00:00",
+                                                              "lte" : req.body.endPeriod+" 23:59:59"
+                                                          }
+                                                      }
+                                                  },
+                                                  {
+                                                      "terms": {
+                                                          "sentiment": sentiment
                                                       }
                                                   }
-                                              },
-                                              {
-                                                  "terms": {
-                                                      "sentiment": sentiment
-                                                  }
-                                              }
-                                          ],
-                                          "should": k2
+                                              ],
+                                              "should": k2
+                                          }
                                       }
                                   }
                               }
-                          }
-                        }
-                    };
-                    /*if (req.body.trackerName){
-                        if (req.body.trackerName.length>0){
-                            body['type'] = req.body.trackerName.join(',');
-                        }
-                    }*/
-                    //console.log(JSON.stringify(body,null,2))
-                    esClient.search(body,
-                    function(err,resp){
-                        if(err){
-                            console.log(err);
-                            callback(err,'');
-                        }
-                        else{
-                            var a = [];
-                            for (var i=0;i<resp.hits.hits.length;i++){
-                                a.push({
-                                    img:'assets/images/usight/facebook_small.png',
-                                    user_name: resp.hits.hits[i]._source.about.name,
-                                    screen_name: resp.hits.hits[i]._source.about.name,
-                                    user_id: resp.hits.hits[i]._source.about.id,
-                                    sentiment: resp.hits.hits[i]._source.sentiment,
-                                    dt: resp.hits.hits[i]._source.date,
-                                    text: resp.hits.hits[i]._source.post_message,
-                                    id: resp.hits.hits[i]._id,
-                                    url: 'https://facebook.com/'+resp.hits.hits[i]._source.about.name+'/posts/'+resp.hits.hits[i]._source.post_id,
-                                    source: 'facebook',
-                                    total: resp.hits.total
-                                })
                             }
-                            callback(null,a);
-                        }
-                    });
+                        };
+                        /*if (req.body.trackerName){
+                            if (req.body.trackerName.length>0){
+                                body['type'] = req.body.trackerName.join(',');
+                            }
+                        }*/
+                        //console.log(JSON.stringify(body,null,2))
+                        esClient.search(body,
+                        function(err,resp){
+                            if(err){
+                                console.log(err);
+                                callback(err,'');
+                            }
+                            else{
+                                var a = [];
+                                for (var i=0;i<resp.hits.hits.length;i++){
+                                    a.push({
+                                        img:'assets/images/usight/facebook_small.png',
+                                        user_name: resp.hits.hits[i]._source.about.name,
+                                        screen_name: resp.hits.hits[i]._source.about.name,
+                                        user_id: resp.hits.hits[i]._source.about.id,
+                                        sentiment: resp.hits.hits[i]._source.sentiment,
+                                        dt: resp.hits.hits[i]._source.date,
+                                        text: resp.hits.hits[i]._source.post_message,
+                                        id: resp.hits.hits[i]._id,
+                                        url: 'https://facebook.com/'+resp.hits.hits[i]._source.about.name+'/posts/'+resp.hits.hits[i]._source.post_id,
+                                        source: 'facebook',
+                                        total: resp.hits.total
+                                    })
+                                }
+                                callback(null,a);
+                            }
+                        });
+                    }
+
                 }
                 else callback(null, []);
             },
             function(callback) {
                 if (source.indexOf('news')>-1){
-                    var sentiment = [];
-                    if (req.body.sentiment){
-                        sentiment = req.body.sentiment.length==0?['positive','negative','neutral']:req.body.sentiment;
-                    }
+                    if (k.length==0) callback('nokeyword',[])
                     else {
-                        sentiment = ['positive','negative','neutral']
-                    }
+                        var sentiment = [];
+                        if (req.body.sentiment){
+                            sentiment = req.body.sentiment.length==0?['positive','negative','neutral']:req.body.sentiment;
+                        }
+                        else {
+                            sentiment = ['positive','negative','neutral']
+                        }
 
-                    var body = {
-                        index: 'bukalapak',
-                        body:{
-                            "from":req.body.from,
-                            "size":req.body.size,
-                            "query": {
-                              "constant_score" : {
-                                  "filter" : {
-                                      "bool": {
-                                          "must": [
-                                              {
-                                                  "range" : {
-                                                      "rdate" : {
-                                                          "gte" : req.body.startPeriod+" 00:00:00",
-                                                          "lte" : req.body.endPeriod+" 23:59:59"
+                        var body = {
+                            index: 'bukalapak',
+                            body:{
+                                "from":req.body.from,
+                                "size":req.body.size,
+                                "query": {
+                                  "constant_score" : {
+                                      "filter" : {
+                                          "bool": {
+                                              "must": [
+                                                  {
+                                                      "range" : {
+                                                          "rdate" : {
+                                                              "gte" : req.body.startPeriod+" 00:00:00",
+                                                              "lte" : req.body.endPeriod+" 23:59:59"
+                                                          }
+                                                      }
+                                                  },
+                                                  {
+                                                      "terms": {
+                                                          "sentiment_bl": sentiment
                                                       }
                                                   }
-                                              },
-                                              {
-                                                  "terms": {
-                                                      "sentiment_bl": sentiment
-                                                  }
-                                              }
-                                          ]
+                                              ]
+                                          }
                                       }
                                   }
                               }
-                          }
-                        }
-                    };
-                    esClient.search(body,
-                    function(err,resp){
-                        if(err){
-                            console.log(errorSearch);
-                            callback(err,'');
-                        }
-                        else{
-                            var a = [];
-                            for (var i=0;i<resp.hits.hits.length;i++){
-                                a.push({
-                                    img: resp.hits.hits[i]._source.seller_avatar,
-                                    user_name: resp.hits.hits[i]._source.review.sender_name,
-                                    screen_name: resp.hits.hits[i]._source.review.sender_name,
-                                    user_id: resp.hits.hits[i]._source.review.sender_id,
-                                    sentiment: resp.hits.hits[i]._source.sentiment_bl,
-                                    dt: resp.hits.hits[i]._source.rdate,
-                                    text: resp.hits.hits[i]._source.review.body,
-                                    id: resp.hits.hits[i]._id,
-                                    url:resp.hits.hits[i]._source.url,
-                                    source:'news',
-                                    total: resp.hits.total
-                                })
                             }
-                            callback(null,a);
-                        }
-                    });
+                        };
+                        esClient.search(body,
+                        function(err,resp){
+                            if(err){
+                                console.log(errorSearch);
+                                callback(err,'');
+                            }
+                            else{
+                                var a = [];
+                                for (var i=0;i<resp.hits.hits.length;i++){
+                                    a.push({
+                                        img: resp.hits.hits[i]._source.seller_avatar,
+                                        user_name: resp.hits.hits[i]._source.review.sender_name,
+                                        screen_name: resp.hits.hits[i]._source.review.sender_name,
+                                        user_id: resp.hits.hits[i]._source.review.sender_id,
+                                        sentiment: resp.hits.hits[i]._source.sentiment_bl,
+                                        dt: resp.hits.hits[i]._source.rdate,
+                                        text: resp.hits.hits[i]._source.review.body,
+                                        id: resp.hits.hits[i]._id,
+                                        url:resp.hits.hits[i]._source.url,
+                                        source:'news',
+                                        total: resp.hits.total
+                                    })
+                                }
+                                callback(null,a);
+                            }
+                        });
+                    }
+
                 }
                 else callback(null, []);
             }
@@ -1087,177 +1044,185 @@ module.exports = function(esClient){
         async.parallel([
             function(callback) {
                 if (source.indexOf('twitter')>-1){
-                    var sentiment = [];
-                    if (req.body.sentiment){
-                        sentiment = req.body.sentiment.length==0?['positive','negative','neutral']:req.body.sentiment;
-                    }
+                    if (k.length==0) callback('nokeyword',[])
                     else {
-                        sentiment = ['positive','negative','neutral']
-                    }
+                        var sentiment = [];
+                        if (req.body.sentiment){
+                            sentiment = req.body.sentiment.length==0?['positive','negative','neutral']:req.body.sentiment;
+                        }
+                        else {
+                            sentiment = ['positive','negative','neutral']
+                        }
 
-                    var body = {
-                        index: 'twitter_classify',
-                        body:{
-                          "size":0,
-                          "query": {
-                              "constant_score" : {
-                                  "filter" : {
-                                      "bool": {
-                                          "must": [
-                                              {
-                                                  "range" : {
-                                                      "date" : {
-                                                          "gte" : req.body.startPeriod+" 00:00:00",
-                                                          "lte" : req.body.endPeriod+" 23:59:59"
+                        var body = {
+                            index: 'twitter_classify',
+                            body:{
+                              "size":0,
+                              "query": {
+                                  "constant_score" : {
+                                      "filter" : {
+                                          "bool": {
+                                              "must": [
+                                                  {
+                                                      "range" : {
+                                                          "date" : {
+                                                              "gte" : req.body.startPeriod+" 00:00:00",
+                                                              "lte" : req.body.endPeriod+" 23:59:59"
+                                                          }
+                                                      }
+                                                  },
+                                                  {
+                                                      "terms": {
+                                                          "sentiment": sentiment
                                                       }
                                                   }
-                                              },
-                                              {
-                                                  "terms": {
-                                                      "sentiment": sentiment
-                                                  }
+                                              ],
+                                              "should": k
+                                          }
+                                      }
+                                  }
+                              },
+                              "aggs" : {
+                                  "data" : {
+                                      "date_histogram" : {
+                                          "field" : "date",
+                                          "interval" : "1d"
+                                      },
+                                      "aggs": {
+                                          "rt": {
+                                              "sum": {
+                                                  "field": "retweet_count"
                                               }
-                                          ],
-                                          "should": k
-                                      }
-                                  }
-                              }
-                          },
-                          "aggs" : {
-                              "data" : {
-                                  "date_histogram" : {
-                                      "field" : "date",
-                                      "interval" : "1d"
-                                  },
-                                  "aggs": {
-                                      "rt": {
-                                          "sum": {
-                                              "field": "retweet_count"
-                                          }
-                                      },
-                                      "fav": {
-                                          "sum": {
-                                              "field": "favorite_count"
-                                          }
-                                      },
-                                      "total" : {
-                                          "value_count" : {
-                                              "field" : "id"
+                                          },
+                                          "fav": {
+                                              "sum": {
+                                                  "field": "favorite_count"
+                                              }
+                                          },
+                                          "total" : {
+                                              "value_count" : {
+                                                  "field" : "id"
+                                              }
                                           }
                                       }
                                   }
                               }
-                          }
 
-                        }
-                    };
-                    /*if (req.body.trackerName){
-                        if (req.body.trackerName.length>0){
-                            body['type'] = req.body.trackerName.join(',');
-                        }
-                    }*/
-                    //console.log(JSON.stringify(body,null,2))
-                    esClient.search(body,
-                    function(err,resp){
-                        if(err){
-                            console.log(err);
-                            callback(err,'');
-                        }
-                        else{
-                            var bt = resp.aggregations.data.buckets;
-                            var arr = []
-                            for (var i=0;i<bt.length;i++){
-                                arr.push({
-                                    dt: bt[i].key_as_string.split(' ')[0],
-                                    total: (bt[i].rt.value+bt[i].total.value+bt[i].fav.value)
-                                })
                             }
-                            callback(null,{twitter:arr});
-                        }
-                    });
+                        };
+                        /*if (req.body.trackerName){
+                            if (req.body.trackerName.length>0){
+                                body['type'] = req.body.trackerName.join(',');
+                            }
+                        }*/
+                        //console.log(JSON.stringify(body,null,2))
+                        esClient.search(body,
+                        function(err,resp){
+                            if(err){
+                                console.log(err);
+                                callback(err,'');
+                            }
+                            else{
+                                var bt = resp.aggregations.data.buckets;
+                                var arr = []
+                                for (var i=0;i<bt.length;i++){
+                                    arr.push({
+                                        dt: bt[i].key_as_string.split(' ')[0],
+                                        total: (bt[i].rt.value+bt[i].total.value+bt[i].fav.value)
+                                    })
+                                }
+                                callback(null,{twitter:arr});
+                            }
+                        });
+                    }
+
                 }
                 else callback(null, []);
             },
             function(callback) {
                 if (source.indexOf('facebook')>-1){
-                    var sentiment = [];
-                    if (req.body.sentiment){
-                        sentiment = req.body.sentiment.length==0?['positive','negative','neutral']:req.body.sentiment;
-                    }
+                    if (k.length==0) callback('nokeyword',[])
                     else {
-                        sentiment = ['positive','negative','neutral']
-                    }
+                        var sentiment = [];
+                        if (req.body.sentiment){
+                            sentiment = req.body.sentiment.length==0?['positive','negative','neutral']:req.body.sentiment;
+                        }
+                        else {
+                            sentiment = ['positive','negative','neutral']
+                        }
 
-                    var body = {
-                        index: 'facebook_classify',
-                        body:{
-                          "size":0,
-                          "query": {
-                              "constant_score" : {
-                                  "filter" : {
-                                      "bool": {
-                                          "must": [
-                                              {
-                                                  "range" : {
-                                                      "date" : {
-                                                          "gte" : req.body.startPeriod+" 00:00:00",
-                                                          "lte" : req.body.endPeriod+" 23:59:59"
+                        var body = {
+                            index: 'facebook_classify',
+                            body:{
+                              "size":0,
+                              "query": {
+                                  "constant_score" : {
+                                      "filter" : {
+                                          "bool": {
+                                              "must": [
+                                                  {
+                                                      "range" : {
+                                                          "date" : {
+                                                              "gte" : req.body.startPeriod+" 00:00:00",
+                                                              "lte" : req.body.endPeriod+" 23:59:59"
+                                                          }
+                                                      }
+                                                  },
+                                                  {
+                                                      "terms": {
+                                                          "sentiment": sentiment
                                                       }
                                                   }
-                                              },
-                                              {
-                                                  "terms": {
-                                                      "sentiment": sentiment
-                                                  }
-                                              }
-                                          ],
-                                          "should": k2
+                                              ],
+                                              "should": k2
+                                          }
                                       }
                                   }
-                              }
-                          },
-                          "aggs" : {
-                                "data" : {
-                                    "date_histogram" : {
-                                        "field" : "date",
-                                        "interval" : "1d"
-                                    },
-                                    "aggs": {
-                                        "total" : {
-                                            "value_count" : {
-                                                "field" : "id"
+                              },
+                              "aggs" : {
+                                    "data" : {
+                                        "date_histogram" : {
+                                            "field" : "date",
+                                            "interval" : "1d"
+                                        },
+                                        "aggs": {
+                                            "total" : {
+                                                "value_count" : {
+                                                    "field" : "id"
+                                                }
                                             }
                                         }
                                     }
                                 }
                             }
-                        }
-                    };
-                    /*if (req.body.trackerName){
-                        if (req.body.trackerName.length>0){
-                            body['type'] = req.body.trackerName.join(',');
-                        }
-                    }*/
-                    //console.log(JSON.stringify(body,null,2))
-                    esClient.search(body,
-                    function(err,resp){
-                        if(err){
-                            console.log(err);
-                            callback(err,'');
-                        }
-                        else{
-                            var bt = resp.aggregations.data.buckets;
-                            var arr = []
-                            for (var i=0;i<bt.length;i++){
-                                arr.push({
-                                    dt: bt[i].key_as_string.split(' ')[0],
-                                    total: bt[i].total.value
-                                })
+                        };
+                        /*if (req.body.trackerName){
+                            if (req.body.trackerName.length>0){
+                                body['type'] = req.body.trackerName.join(',');
                             }
-                            callback(null,{facebook:arr});
-                            //callback(null,{facebook:resp.hits.total});
-                        }
-                    });
+                        }*/
+                        //console.log(JSON.stringify(body,null,2))
+                        esClient.search(body,
+                        function(err,resp){
+                            if(err){
+                                console.log(err);
+                                callback(err,'');
+                            }
+                            else{
+                                var bt = resp.aggregations.data.buckets;
+                                var arr = []
+                                for (var i=0;i<bt.length;i++){
+                                    arr.push({
+                                        dt: bt[i].key_as_string.split(' ')[0],
+                                        total: bt[i].total.value
+                                    })
+                                }
+                                callback(null,{facebook:arr});
+                                //callback(null,{facebook:resp.hits.total});
+                            }
+                        });
+                    }
+
                 }
                 else callback(null, []);
             }
@@ -1314,182 +1279,190 @@ module.exports = function(esClient){
         async.parallel([
             function(callback) {
                 if (source.indexOf('twitter')>-1){
-                    var sentiment = [];
-                    if (req.body.sentiment){
-                        sentiment = req.body.sentiment.length==0?['positive','negative','neutral']:req.body.sentiment;
-                    }
+                    if (k.length==0) callback('nokeyword',[])
                     else {
-                        sentiment = ['positive','negative','neutral']
-                    }
+                        var sentiment = [];
+                        if (req.body.sentiment){
+                            sentiment = req.body.sentiment.length==0?['positive','negative','neutral']:req.body.sentiment;
+                        }
+                        else {
+                            sentiment = ['positive','negative','neutral']
+                        }
 
-                    var body = {
-                        index: 'twitter_classify',
-                        body:{
-                          "size":0,
-                          "query": {
-                              "constant_score" : {
-                                  "filter" : {
-                                      "bool": {
-                                          "must": [
-                                              {
-                                                  "range" : {
-                                                      "date" : {
-                                                          "gte" : req.body.startPeriod+" 00:00:00",
-                                                          "lte" : req.body.endPeriod+" 23:59:59"
+                        var body = {
+                            index: 'twitter_classify',
+                            body:{
+                              "size":0,
+                              "query": {
+                                  "constant_score" : {
+                                      "filter" : {
+                                          "bool": {
+                                              "must": [
+                                                  {
+                                                      "range" : {
+                                                          "date" : {
+                                                              "gte" : req.body.startPeriod+" 00:00:00",
+                                                              "lte" : req.body.endPeriod+" 23:59:59"
+                                                          }
+                                                      }
+                                                  },
+                                                  {
+                                                      "terms": {
+                                                          "sentiment": sentiment
                                                       }
                                                   }
-                                              },
-                                              {
-                                                  "terms": {
-                                                      "sentiment": sentiment
-                                                  }
-                                              }
-                                          ],
-                                          "should": k
+                                              ],
+                                              "should": k
+                                          }
                                       }
                                   }
-                              }
-                          },
-                          "aggs": {
-                                "cat": {
-                                  "terms": {
-                                    "field": "category"
-                                    },
-                                    "aggs": {
-                                        "sentiment": {
-                                          "terms": {
-                                            "field": "sentiment"
+                              },
+                              "aggs": {
+                                    "cat": {
+                                      "terms": {
+                                        "field": "category"
+                                        },
+                                        "aggs": {
+                                            "sentiment": {
+                                              "terms": {
+                                                "field": "sentiment"
+                                                }
                                             }
-                                        }
-                                      }
+                                          }
+                                    }
                                 }
                             }
-                        }
-                    };
-                    /*if (req.body.trackerName){
-                        if (req.body.trackerName.length>0){
-                            body['type'] = req.body.trackerName.join(',');
-                        }
-                    }*/
-                    //console.log(JSON.stringify(body,null,2))
-                    esClient.search(body,
-                    function(err,resp){
-                        if(err){
-                            console.log(err);
-                            callback(err,'');
-                        }
-                        else{
-                            var b = resp.aggregations.cat.buckets;
-                            var c = {
-                                other:{positive:0,negative:0,neutral:0},
-                                informasi: {positive:0,negative:0,neutral:0},
-                                aplikasi: {positive:0,negative:0,neutral:0},
-                                fitur: {positive:0,negative:0,neutral:0},
-                                promosi: {positive:0,negative:0,neutral:0},
-                                pengiriman: {positive:0,negative:0,neutral:0},
-                                pembelian: {positive:0,negative:0,neutral:0},
-                                payment: {positive:0,negative:0,neutral:0}
+                        };
+                        /*if (req.body.trackerName){
+                            if (req.body.trackerName.length>0){
+                                body['type'] = req.body.trackerName.join(',');
                             }
-                            for (var i=0;i<b.length;i++){
-                                for (var j=0;j<b[i].sentiment.buckets.length;j++){
-                                    c[b[i].key][b[i].sentiment.buckets[j].key] = b[i].sentiment.buckets[j].doc_count;
+                        }*/
+                        //console.log(JSON.stringify(body,null,2))
+                        esClient.search(body,
+                        function(err,resp){
+                            if(err){
+                                console.log(err);
+                                callback(err,'');
+                            }
+                            else{
+                                var b = resp.aggregations.cat.buckets;
+                                var c = {
+                                    other:{positive:0,negative:0,neutral:0},
+                                    informasi: {positive:0,negative:0,neutral:0},
+                                    aplikasi: {positive:0,negative:0,neutral:0},
+                                    fitur: {positive:0,negative:0,neutral:0},
+                                    promosi: {positive:0,negative:0,neutral:0},
+                                    pengiriman: {positive:0,negative:0,neutral:0},
+                                    pembelian: {positive:0,negative:0,neutral:0},
+                                    payment: {positive:0,negative:0,neutral:0}
                                 }
+                                for (var i=0;i<b.length;i++){
+                                    for (var j=0;j<b[i].sentiment.buckets.length;j++){
+                                        c[b[i].key][b[i].sentiment.buckets[j].key] = b[i].sentiment.buckets[j].doc_count;
+                                    }
+                                }
+                                var a = retval;
+                                callback(null,c);
                             }
-                            var a = retval;
-                            callback(null,c);
-                        }
-                    });
+                        });
+                    }
+
                 }
                 else callback(null, []);
             },
             function(callback) {
                 if (source.indexOf('facebook')>-1){
-                    var sentiment = [];
-                    if (req.body.sentiment){
-                        sentiment = req.body.sentiment.length==0?['positive','negative','neutral']:req.body.sentiment;
-                    }
+                    if (k.length==0) callback('nokeyword',[])
                     else {
-                        sentiment = ['positive','negative','neutral']
-                    }
+                        var sentiment = [];
+                        if (req.body.sentiment){
+                            sentiment = req.body.sentiment.length==0?['positive','negative','neutral']:req.body.sentiment;
+                        }
+                        else {
+                            sentiment = ['positive','negative','neutral']
+                        }
 
-                    var body = {
-                        index: 'facebook_classify',
-                        body:{
-                          "size":0,
-                          "query": {
-                              "constant_score" : {
-                                  "filter" : {
-                                      "bool": {
-                                          "must": [
-                                              {
-                                                  "range" : {
-                                                      "date" : {
-                                                          "gte" : req.body.startPeriod+" 00:00:00",
-                                                          "lte" : req.body.endPeriod+" 23:59:59"
+                        var body = {
+                            index: 'facebook_classify',
+                            body:{
+                              "size":0,
+                              "query": {
+                                  "constant_score" : {
+                                      "filter" : {
+                                          "bool": {
+                                              "must": [
+                                                  {
+                                                      "range" : {
+                                                          "date" : {
+                                                              "gte" : req.body.startPeriod+" 00:00:00",
+                                                              "lte" : req.body.endPeriod+" 23:59:59"
+                                                          }
+                                                      }
+                                                  },
+                                                  {
+                                                      "terms": {
+                                                          "sentiment": sentiment
                                                       }
                                                   }
-                                              },
-                                              {
-                                                  "terms": {
-                                                      "sentiment": sentiment
-                                                  }
-                                              }
-                                          ],
-                                          "should": k2
+                                              ],
+                                              "should": k2
+                                          }
                                       }
                                   }
-                              }
-                          },
-                          "aggs": {
-                                "cat": {
-                                  "terms": {
-                                    "field": "category"
-                                    },
-                                    "aggs": {
-                                        "sentiment": {
-                                          "terms": {
-                                            "field": "sentiment"
+                              },
+                              "aggs": {
+                                    "cat": {
+                                      "terms": {
+                                        "field": "category"
+                                        },
+                                        "aggs": {
+                                            "sentiment": {
+                                              "terms": {
+                                                "field": "sentiment"
+                                                }
                                             }
-                                        }
-                                      }
+                                          }
+                                    }
                                 }
                             }
-                        }
-                    };
-                    /*if (req.body.trackerName){
-                        if (req.body.trackerName.length>0){
-                            body['type'] = req.body.trackerName.join(',');
-                        }
-                    }*/
-                    //console.log(JSON.stringify(body,null,2))
-                    esClient.search(body,
-                    function(err,resp){
-                        if(err){
-                            console.log(err);
-                            callback(err,'');
-                        }
-                        else{
-                            var b = resp.aggregations.cat.buckets;
-                            console.log('cat fb', JSON.stringify(b,null,2))
-                            var c = {
-                                other:{positive:0,negative:0,neutral:0},
-                                informasi: {positive:0,negative:0,neutral:0},
-                                aplikasi: {positive:0,negative:0,neutral:0},
-                                fitur: {positive:0,negative:0,neutral:0},
-                                promosi: {positive:0,negative:0,neutral:0},
-                                pengiriman: {positive:0,negative:0,neutral:0},
-                                pembelian: {positive:0,negative:0,neutral:0},
-                                payment: {positive:0,negative:0,neutral:0}
+                        };
+                        /*if (req.body.trackerName){
+                            if (req.body.trackerName.length>0){
+                                body['type'] = req.body.trackerName.join(',');
                             }
-                            for (var i=0;i<b.length;i++){
-                                for (var j=0;j<b[i].sentiment.buckets.length;j++){
-                                    c[b[i].key][b[i].sentiment.buckets[j].key] = b[i].sentiment.buckets[j].doc_count;
+                        }*/
+                        //console.log(JSON.stringify(body,null,2))
+                        esClient.search(body,
+                        function(err,resp){
+                            if(err){
+                                console.log(err);
+                                callback(err,'');
+                            }
+                            else{
+                                var b = resp.aggregations.cat.buckets;
+                                console.log('cat fb', JSON.stringify(b,null,2))
+                                var c = {
+                                    other:{positive:0,negative:0,neutral:0},
+                                    informasi: {positive:0,negative:0,neutral:0},
+                                    aplikasi: {positive:0,negative:0,neutral:0},
+                                    fitur: {positive:0,negative:0,neutral:0},
+                                    promosi: {positive:0,negative:0,neutral:0},
+                                    pengiriman: {positive:0,negative:0,neutral:0},
+                                    pembelian: {positive:0,negative:0,neutral:0},
+                                    payment: {positive:0,negative:0,neutral:0}
                                 }
+                                for (var i=0;i<b.length;i++){
+                                    for (var j=0;j<b[i].sentiment.buckets.length;j++){
+                                        c[b[i].key][b[i].sentiment.buckets[j].key] = b[i].sentiment.buckets[j].doc_count;
+                                    }
+                                }
+                                var a = retval;
+                                callback(null,c);
                             }
-                            var a = retval;
-                            callback(null,c);
-                        }
-                    });
+                        });
+                    }
+
                 }
                 else callback(null, []);
             }

@@ -51,6 +51,9 @@ else {
     app.get('/index', function (req, res) {
         res.render('home');
     });
+    app.get('/coming-soon', function (req, res) {
+        res.render('coming_soon');
+    });
     app.get('/confirmation', function (req, res) {
         //confirmation?p=hashValue
         try{

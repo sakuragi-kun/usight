@@ -203,65 +203,6 @@ module.exports = function(esClient){
             }
             res.send({type:'success',message:rSend})
         });
-
-        /*var searchBody = {
-            index: 'twitter_classify,bukalapak',
-            //type: req.body.project,
-            body:{
-              "size":0,
-              "aggs": {
-                "wordcloud": {
-                  "terms": {
-                    "field": "keywords",
-                    "size": req.body.total
-                    }
-                }
-            }
-            }
-        }
-        if (req.body.project != ''){
-            searchBody['type'] = req.body.project
-        }
-        esClient.search(searchBody,
-        function(err,resp){
-            if(err){
-                console.log(err);
-                res.send({type:'error',message:err})
-            }
-            else{
-                var r = resp.aggregations.wordcloud.buckets;
-                var r2 = [], r3 = [];
-                var rSend = {};
-                var max = req.body.max;
-                var m = 0;
-                for (var i=0;i<r.length;i++){
-
-                    if (r[i].key.indexOf('http')>-1){
-                        r3.push(r[i])
-                    }
-                    if (exclude.indexOf(r[i].key)>-1){
-                        r3.push(r[i])
-                    }
-                    else if(r[i].key.length == 1){
-                        r3.push(r[i])
-                    }
-                    else if(isNaN(r[i].key) == false){
-                        r3.push(r[i])
-                    }
-                    else {
-                        if (m==0) m=r[i].doc_count
-                        r2.push(r[i])
-                    }
-                }
-                for (var i=0;i<r2.length;i++){
-                    r2[i].size = Math.round(r2[i].doc_count/m*max)
-                    rSend[r2[i].key] = r2[i].size
-                }
-
-
-                res.send({type:'success',message:rSend})
-            }
-        });*/
     });
     app.post('/sentiment', function (req, res) {
         ///console.log(req.body);
@@ -412,70 +353,7 @@ module.exports = function(esClient){
                 retval.push({key:key,doc_count:s[key]})
             }
             res.send({type:'success',message:retval})
-
-
         });
-
-        /*var searchBody = {
-            index: 'twitter_classify',
-            //type: req.body.project,
-            body:{
-              "size":0,
-              "aggs": {
-                "sentiment": {
-                  "terms": {
-                    "field": "sentiment"
-                    }
-                }
-            }
-            }
-        }
-        if (req.body.project != ''){
-            searchBody['type'] = req.body.project
-        }
-        esClient.search(searchBody,
-        function(err,resp){
-            if(err){
-                console.log(err);
-                res.send({type:'error',message:err})
-            }
-            else{
-                var r = resp.aggregations.sentiment.buckets;
-                var searchBody = {
-                    index: 'bukalapak',
-                    //type: req.body.project,
-                    body:{
-                      "size":0,
-                      "aggs": {
-                        "sentiment": {
-                          "terms": {
-                            "field": "sentiment_bl"
-                            }
-                        }
-                    }
-                    }
-                }
-                if (req.body.project != ''){
-                    searchBody['type'] = req.body.project
-                }
-                esClient.search(searchBody,
-                function(err2,resp2){
-                    if(err2){
-                        res.send({type:'error',message:err2})
-                    }
-                    else{
-                        var r2 = resp2.aggregations.sentiment.buckets;
-                        var rSend = [];
-                        for (var i=0;i<r.length;i++){
-                            for (var j=0;j<r2.length;j++){
-                                if (r[i].key == r2[j].key) r[i].doc_count = r[i].doc_count+r2[j].doc_count
-                            }
-                        }
-                        res.send({type:'success',message:r})
-                    }
-                });
-            }
-        });*/
     });
     app.post('/agg_date', function (req, res) {
         console.log('aggdate',req.body)
@@ -531,65 +409,68 @@ module.exports = function(esClient){
         if (req.body.project != ''){
             searchBody['type'] = req.body.project
         }
-        esClient.search(searchBody,function(err,resp){
-            if(err){
-                console.log(err);
-                res.send({type:'error',message:err})
-            }
-            else{
-                var r = resp.aggregations.agg_date.buckets;
-                retval.twitter = r;
-                var searchBody = {
-                    index: 'facebook_classify',
-                    //type: req.body.project,
-                    body:{
-                        "query": {
-                            "constant_score" : {
-                                "filter" : {
-                                    "bool": {
-                                        "must": [
-                                            {
-                                                "range" : {
-                                                    "date" : {
-                                                        "gte" : req.body.start+" 00:00:00",
-                                                        "lte" : req.body.end+" 23:59:59"
+        if (k.length==0) res.send({type:'error',message:'No Keyword'})
+        else {
+            esClient.search(searchBody,function(err,resp){
+                if(err){
+                    console.log(err);
+                    res.send({type:'error',message:err})
+                }
+                else{
+                    var r = resp.aggregations.agg_date.buckets;
+                    retval.twitter = r;
+                    var searchBody = {
+                        index: 'facebook_classify',
+                        //type: req.body.project,
+                        body:{
+                            "query": {
+                                "constant_score" : {
+                                    "filter" : {
+                                        "bool": {
+                                            "must": [
+                                                {
+                                                    "range" : {
+                                                        "date" : {
+                                                            "gte" : req.body.start+" 00:00:00",
+                                                            "lte" : req.body.end+" 23:59:59"
+                                                        }
                                                     }
                                                 }
-                                            }
-                                        ],
-                                        "should": k
+                                            ],
+                                            "should": k
+                                        }
                                     }
                                 }
-                            }
-                        },
-                        "size":0,
-                        "aggs" : {
-                            "agg_date" : {
-                                "date_histogram" : {
-                                    "field" : "date",
-                                    "interval" : "1d"
+                            },
+                            "size":0,
+                            "aggs" : {
+                                "agg_date" : {
+                                    "date_histogram" : {
+                                        "field" : "date",
+                                        "interval" : "1d"
+                                    }
                                 }
                             }
                         }
                     }
-                }
-                if (req.body.project != ''){
-                    searchBody['type'] = req.body.project
-                }
-                esClient.search(searchBody,function(err2,resp2){
-                    if(err2){
+                    if (req.body.project != ''){
+                        searchBody['type'] = req.body.project
+                    }
+                    esClient.search(searchBody,function(err2,resp2){
+                        if(err2){
 
-                        res.send({type:'error',message:err2})
-                    }
-                    else{
-                        var r = resp2.aggregations.agg_date.buckets;
-                        retval.facebook = r;
-                        res.send({type:'success',message:retval})
-                    }
-                });
-                //res.send({type:'success',message:{twitter:r}})
-            }
-        });
+                            res.send({type:'error',message:err2})
+                        }
+                        else{
+                            var r = resp2.aggregations.agg_date.buckets;
+                            retval.facebook = r;
+                            res.send({type:'success',message:retval})
+                        }
+                    });
+                    //res.send({type:'success',message:{twitter:r}})
+                }
+            });
+        }
     });
     app.post('/sums_up', function (req, res) {
         console.log(req.body)
@@ -660,60 +541,66 @@ module.exports = function(esClient){
         if (req.body.project != ''){
             searchBody['type'] = req.body.project
         }
-        esClient.search(searchBody,function(err,resp){
-            if(err){
-                console.log(err);
-                res.send({type:'error',message:err})
-            }
-            else{
-                retval.twitter = resp.hits.total
-                var searchBody = {
-                    index: 'facebook_classify',
-                    body:{
-                      "size":0,
-                      "query": {
-                          "constant_score" : {
-                              "filter" : {
-                                  "bool": {
-                                      "must": [
-                                          {
-                                              "range" : {
-                                                  "date" : {
-                                                      "gte" : d2s+" 00:00:00",
-                                                      "lte" : d1s+" 23:59:59"
+        if (k.length==0) res.send({type:'error',message:'No Keyword'})
+        else {
+            console.log('############MASUK ELSE',k)
+            esClient.search(searchBody,function(err,resp){
+                if(err){
+                    console.log(err);
+                    res.send({type:'error',message:err})
+                }
+                else{
+                    retval.twitter = resp.hits.total
+                    var searchBody = {
+                        index: 'facebook_classify',
+                        body:{
+                          "size":0,
+                          "query": {
+                              "constant_score" : {
+                                  "filter" : {
+                                      "bool": {
+                                          "must": [
+                                              {
+                                                  "range" : {
+                                                      "date" : {
+                                                          "gte" : d2s+" 00:00:00",
+                                                          "lte" : d1s+" 23:59:59"
+                                                      }
                                                   }
                                               }
-                                          }
-                                      ],
-                                      "should": k
+                                          ],
+                                          "should": k
+                                      }
                                   }
                               }
                           }
-                      }
+                        }
+                    };
+                    /*var searchBody = {
+                        index: 'bukalapak',
+                        //type: req.body.project,
+                        body:{
+                            "size":0
+                        }
+                    }*/
+                    if (req.body.project != ''){
+                        searchBody['type'] = req.body.project
                     }
-                };
-                /*var searchBody = {
-                    index: 'bukalapak',
-                    //type: req.body.project,
-                    body:{
-                        "size":0
-                    }
-                }*/
-                if (req.body.project != ''){
-                    searchBody['type'] = req.body.project
+                    esClient.search(searchBody,function(err2,resp2){
+                        if(err2){
+                            console.log(err2);
+                            res.send({type:'error',message:err})
+                        }
+                        else{
+                            retval.facebook = resp2.hits.total
+                            res.send({type:'success',message:retval})
+                        }
+                    });
                 }
-                esClient.search(searchBody,function(err2,resp2){
-                    if(err2){
-                        console.log(err2);
-                        res.send({type:'error',message:err})
-                    }
-                    else{
-                        retval.facebook = resp2.hits.total
-                        res.send({type:'success',message:retval})
-                    }
-                });
-            }
-        });
+            });
+
+        }
+
     });
     app.post('/top5', function (req, res) {
         //console.log('word-cloud',req.body)
