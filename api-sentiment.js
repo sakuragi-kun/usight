@@ -814,9 +814,10 @@ module.exports = function(esClient){
                                 body['type'] = req.body.trackerName.join(',');
                             }
                         }*/
-                        //console.log(JSON.stringify(body,null,2))
+                        console.log(JSON.stringify(body,null,2))
                         esClient.search(body,
                         function(err,resp){
+                            console.log(resp)
                             if(err){
                                 console.log(err);
                                 callback(err,'');

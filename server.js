@@ -6,8 +6,8 @@ const bodyParser = require('body-parser');
 var cluster = require('cluster');
 var elasticsearch = require('elasticsearch'), fs = require('fs'), request = require('request');
 const esClient = new elasticsearch.Client({
-  host: '128.199.88.206:7200'
-  //host: 'localhost:7200'
+  //host: '128.199.88.206:7200'
+  host: 'localhost:7200'
   //log: 'trace'
 });
 var sendmail = require('sendmail')();
@@ -33,6 +33,7 @@ else {
     app.set('view engine', 'ejs');
     var api = require('./api')(esClient);
     var apiSentiment = require('./api-sentiment')(esClient);
+    var apiEngagement = require('./api-engagement')(esClient);
     var apiUser = require('./api-user')(esClient,jwt,transporter,mailerConfig);
 
     app.use(function(req, res, next) {
@@ -44,6 +45,7 @@ else {
     app.use('/api', api);
     app.use('/user', apiUser);
     app.use('/api-sentiment', apiSentiment);
+    app.use('/api-engagement', apiEngagement);
 
     app.get('/', function (req, res) {
         res.render('login');
