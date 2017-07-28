@@ -362,7 +362,7 @@ module.exports = function(esClient,jwt,transporter,mailerConfig){
         esClient.search({
             index: 'user',
             type: 'list',
-            q: '_id='+req.query.username,
+            q: '_id:'+req.query.username,
             refresh:true
         }, function (error, response) {
             console.log(response)
