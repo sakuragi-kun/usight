@@ -157,7 +157,7 @@ module.exports = function(esClient,jwt,transporter,mailerConfig){
         esClient.search({
             index: 'user',
             type: 'list',
-            q: '_id='+req.body.username
+            q: '_id:'+req.body.username
         }, function (error, response) {
             if (error) {
                 console.log(error)
@@ -193,7 +193,7 @@ module.exports = function(esClient,jwt,transporter,mailerConfig){
                         //console.log(tracker[i].twitter.requiredkeyword.split(',').length)
                     }
                     console.log(countKeyword)
-                    if (countKeyword>10) {
+                    if (countKeyword>20) {
                             stats = {status:'error',message:'Maximum keyword limit exceded'};
                     }
 
@@ -228,7 +228,7 @@ module.exports = function(esClient,jwt,transporter,mailerConfig){
         esClient.search({
             index: 'user',
             type: 'list',
-            q: '_id='+req.body.username
+            q: '_id:'+req.body.username
         }, function (error, response) {
             if (error) {
                 console.log(error)
@@ -302,7 +302,7 @@ module.exports = function(esClient,jwt,transporter,mailerConfig){
         esClient.search({
             index: 'user',
             type: 'list',
-            q: '_id='+req.body.username
+            q: '_id:'+req.body.username
         }, function (error, response) {
             if (error) {
                 console.log(error)

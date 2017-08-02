@@ -19,6 +19,16 @@ $(function() {
         mode('add')
     })
     $('#saveTracker').click(function(ev){
+        var c = 0;
+        if ($('#mainKeyword').val().length>0){
+            c += ($('#mainKeyword').val().split(',').length)
+        }
+        if ($('#requiredKeyword').val().length>0){
+            c += ($('#requiredKeyword').val().split(',').length)
+        }
+        if ($('#excludeKeyword').val().length>0){
+            c += ($('#excludeKeyword').val().split(',').length)
+        }
         if ($('#trackerName').val().length==0 || $('#mainKeyword').val().length==0){
             new PNotify({
                 title: 'Uncomplete Data',
@@ -26,6 +36,16 @@ $(function() {
                 icon: 'icon-blocked',
                 type: 'error',
                 delay: 2000
+            });
+        }
+        else if(c>10){
+            console.log('exceed',c)
+            new PNotify({
+                title: 'Create Tracker',
+                text: 'Maximum keyword limit exceded',
+                icon: 'icon-blocked',
+                type: 'error',
+                delay: 5000
             });
         }
         else {

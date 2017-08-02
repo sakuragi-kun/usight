@@ -12,8 +12,16 @@
 $(function() {
     $('#errMsg').hide();
     var api = localStorage.publicApi;
+    $(document).keypress(function(e) {
+        if(e.which == 13) {
+            login()
+        }
+    });
     $('#login').click(function(ev){
         console.log('login',$('#username').val(),$('#password').val())
+        login()
+    })
+    function login(){
         $.post(api+'/login',{username:$('#username').val(),password:$('#password').val()},function(e,r){
             console.log('aa',e)
             console.log('ab',r);
@@ -43,6 +51,7 @@ $(function() {
             }
 
         });
-    })
+
+    }
 
 });

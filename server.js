@@ -34,6 +34,7 @@ else {
     var api = require('./api')(esClient);
     var apiSentiment = require('./api-sentiment')(esClient);
     var apiEngagement = require('./api-engagement')(esClient);
+    var apiRecomendation = require('./api-recomendation')(esClient);
     var apiUser = require('./api-user')(esClient,jwt,transporter,mailerConfig);
 
     app.use(function(req, res, next) {
@@ -46,6 +47,7 @@ else {
     app.use('/user', apiUser);
     app.use('/api-sentiment', apiSentiment);
     app.use('/api-engagement', apiEngagement);
+    app.use('/api-recomendation', apiRecomendation);
 
     app.get('/', function (req, res) {
         res.render('login');
@@ -167,6 +169,9 @@ else {
     });
     app.get('/sentiment', function (req, res) {
         res.render('sentiment');
+    });
+    app.get('/recomendation', function (req, res) {
+        res.render('recomendation');
     });
     app.get('/engagement', function (req, res) {
         res.render('engagement');
