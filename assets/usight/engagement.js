@@ -674,7 +674,7 @@ function queryData(){
             var stat1 = false;
             for (var j=0;j<e.message['twitter'].length;j++){
                 if (arrdate[i]==e.message.twitter[j].date) {
-                    stat1=(e.message.twitter[j].total/e.message.twitter[j].follower)
+                    stat1=parseFloat(e.message.twitter[j].total/e.message.twitter[j].follower).toFixed(2)
                     su.twitter += e.message.twitter[j].total
                     totalEngagement += e.message.twitter[j].total
                     totalReach += e.message.twitter[j].follower
@@ -688,7 +688,7 @@ function queryData(){
             var stat2 = false;
             for (var j=0;j<e.message['facebook'].length;j++){
                 if (arrdate[i]==e.message.facebook[j].date){
-                    stat2=e.message.facebook[j].total
+                    stat2=parseFloat(e.message.facebook[j].total).toFixed(2)
                     totalEngagement += e.message.facebook[j].total
                     totalReach += e.message.facebook[j].follower
                     su.facebook += e.message.facebook[j].total

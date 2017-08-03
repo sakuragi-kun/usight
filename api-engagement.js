@@ -107,6 +107,11 @@ module.exports = function(esClient){
                                                 "sum" : {
                                                     "field" : "user.followers_count"
                                                 }
+                                            },
+                                            "distinct_user" : {
+                                                "cardinality" : {
+                                                  "field" : "user.name"
+                                                }
                                             }
                                         }
                                     }
@@ -130,7 +135,7 @@ module.exports = function(esClient){
                                     r.push({
                                         date:a[i].key_as_string.split(' ')[0],
                                         total: (a[i].rt.value + a[i].fav.value + a[i].reply.value + a[i].like.doc_count + a[i].share.doc_count),
-                                        follower: a[i].follower.value
+                                        follower: Math.round(a[i].follower.value/a[i].distinct_user.value)
                                     })
                                 }
                                 retval.twitter = r
@@ -457,7 +462,7 @@ module.exports = function(esClient){
 
             }
         }
-        
+
         async.parallel([
             function(callback) {
                 if (k.length==0) callback('nokeyword',[])
