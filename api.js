@@ -50,6 +50,7 @@ module.exports = function(esClient){
             ('0' + d2.getDate()).slice(-2)
         ].join('-');
         k = []
+        var k2 = []
         //console.log(req.body.keywords)
         if (req.body.keywords.length>0){
             for(var i=0;i<req.body.keywords.split(',').length;i++){
@@ -60,6 +61,17 @@ module.exports = function(esClient){
                 })
             }
         }
+        if (req.body.fb.length>0){
+            for(var i=0;i<req.body.fb.split(',').length;i++){
+                k2.push({
+                    "term": {
+                        "about.name": req.body.fb.split(',')[i].trim().toLowerCase()
+                    }
+                })
+
+            }
+        }
+
         async.parallel([
             function(callback) {
                 if (k.length==0) callback('nokeyword',[])
@@ -135,7 +147,7 @@ module.exports = function(esClient){
                                                   }
                                               }
                                           ],
-                                          "should": k
+                                          "should": k2
                                       }
                                   }
                               }
@@ -220,6 +232,7 @@ module.exports = function(esClient){
             ('0' + d2.getDate()).slice(-2)
         ].join('-');
         k = []
+        var k2 = []
         if (req.body.keywords.length>0){
             for(var i=0;i<req.body.keywords.split(',').length;i++){
                 k.push({
@@ -227,6 +240,16 @@ module.exports = function(esClient){
                         "keywords": req.body.keywords.split(',')[i].trim()
                     }
                 })
+            }
+        }
+        if (req.body.fb.length>0){
+            for(var i=0;i<req.body.fb.split(',').length;i++){
+                k2.push({
+                    "term": {
+                        "about.name": req.body.fb.split(',')[i].trim().toLowerCase()
+                    }
+                })
+
             }
         }
         async.parallel([
@@ -305,7 +328,7 @@ module.exports = function(esClient){
                                                   }
                                               }
                                           ],
-                                          "should": k
+                                          "should": k2
                                       }
                                   }
                               }
@@ -359,6 +382,7 @@ module.exports = function(esClient){
         console.log('aggdate',req.body)
         var retval = {facebook:0,twitter:0,instagram:0,news:0};
         k = []
+        var k2 = []
         console.log(req.body.keywords)
         if (req.body.keywords.length>0){
             for(var i=0;i<req.body.keywords.split(',').length;i++){
@@ -369,6 +393,16 @@ module.exports = function(esClient){
                         "keywords": req.body.keywords.split(',')[i].trim()
                     }
                 })
+            }
+        }
+        if (req.body.fb.length>0){
+            for(var i=0;i<req.body.fb.split(',').length;i++){
+                k2.push({
+                    "term": {
+                        "about.name": req.body.fb.split(',')[i].trim().toLowerCase()
+                    }
+                })
+
             }
         }
 
@@ -437,7 +471,7 @@ module.exports = function(esClient){
                                                     }
                                                 }
                                             ],
-                                            "should": k
+                                            "should": k2
                                         }
                                     }
                                 }
@@ -493,7 +527,7 @@ module.exports = function(esClient){
             ('0' + (d2.getMonth() + 1)).slice(-2),
             ('0' + d2.getDate()).slice(-2)
         ].join('-');
-        k = []
+        var k = [], k2 = []
         //console.log(req.body.keywords)
         if (req.body.keywords.length>0){
             for(var i=0;i<req.body.keywords.split(',').length;i++){
@@ -502,6 +536,16 @@ module.exports = function(esClient){
                         "keywords": req.body.keywords.split(',')[i].trim()
                     }
                 })
+            }
+        }
+        if (req.body.fb.length>0){
+            for(var i=0;i<req.body.fb.split(',').length;i++){
+                k2.push({
+                    "term": {
+                        "about.name": req.body.fb.split(',')[i].trim().toLowerCase()
+                    }
+                })
+
             }
         }
 
@@ -569,7 +613,7 @@ module.exports = function(esClient){
                                                   }
                                               }
                                           ],
-                                          "should": k
+                                          "should": k2
                                       }
                                   }
                               }
@@ -618,7 +662,7 @@ module.exports = function(esClient){
             ('0' + (d2.getMonth() + 1)).slice(-2),
             ('0' + d2.getDate()).slice(-2)
         ].join('-');
-        k = []
+        var k = [], k2 = [];
         //console.log(req.body.keywords)
         if (req.body.keywords.length>0){
             for(var i=0;i<req.body.keywords.split(',').length;i++){
@@ -627,6 +671,16 @@ module.exports = function(esClient){
                         "keywords": req.body.keywords.split(',')[i].trim()
                     }
                 })
+            }
+        }
+        if (req.body.fb.length>0){
+            for(var i=0;i<req.body.fb.split(',').length;i++){
+                k2.push({
+                    "term": {
+                        "about.name": req.body.fb.split(',')[i].trim().toLowerCase()
+                    }
+                })
+
             }
         }
         async.parallel([

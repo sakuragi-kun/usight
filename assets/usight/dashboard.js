@@ -13,6 +13,7 @@ $(function() {
     var api = localStorage.publicApi;
     var displayname = JSON.parse(localStorage.getItem('usight-user')).firstname+ ' ' + JSON.parse(localStorage.getItem('usight-user')).lastname
     var keyword = []
+    var fbAccount = '';
     var tracker = JSON.parse(localStorage.getItem('usight-tracker'))
     console.log('tw1',tracker)
 
@@ -29,6 +30,17 @@ $(function() {
     }
     catch(e){}
     console.log('tw2',keyword)
+    var ff = []
+    try{
+        for (var i=0;i<tracker.length;i++){
+            console.log('sendBody3',tracker[i].facebook)
+            ff.push(tracker[i].facebook['facebookid'])
+
+        }
+        //keyword = JSON.parse(localStorage.getItem('usight-tracker')).twitter.mainkeyword
+    }
+    catch(e){}
+    fbAccount = ff.join(',')
 
     $('#hello').html('Hello '+displayname+'!');
 
@@ -36,7 +48,7 @@ $(function() {
     START WORDCLOUD BLOCK
     https://bl.ocks.org/blockspring/847a40e23f68d6d7e8b5
     */
-    $.post(api+'/api/wordCloud',{project:'',max:80,total:250,keywords:keyword.join(',')},function(e,r){
+    $.post(api+'/api/wordCloud',{project:'',max:80,total:250,keywords:keyword.join(','),fb:fbAccount},function(e,r){
         console.log('aa',e)
         console.log('ab',r)
         drawWordCloud(e.message);
@@ -120,7 +132,7 @@ $(function() {
 
     }
 
-    $.post(api+'/api/agg_date',{project:'',start:todayMin,end:today,keywords:keyword.join(',')},function(d){
+    $.post(api+'/api/agg_date',{project:'',start:todayMin,end:today,keywords:keyword.join(','),fb:fbAccount},function(d){
         console.log('agg_Date aa',d);
         var objDate = {
             twitter:{},
@@ -225,7 +237,7 @@ $(function() {
     // ------------------------------
 
     // Generate chart
-    $.post(api+'/api/sentiment',{project:'',keywords:keyword.join(',')},function(e,r){
+    $.post(api+'/api/sentiment',{project:'',keywords:keyword.join(','),fb:fbAccount},function(e,r){
         console.log('sentiment',e)
         console.log('ab',r)
         drawPie(e.message);
@@ -274,7 +286,7 @@ $(function() {
     // ------------------------------
 
     // Generate chart
-    $.post(api+'/api/sums_up',{project:'',keywords:keyword.join(',')},function(e,r){
+    $.post(api+'/api/sums_up',{project:'',keywords:keyword.join(','),fb:fbAccount},function(e,r){
         console.log('aa',e)
         console.log('ab',r)
         barChart(e.message);
@@ -340,7 +352,7 @@ $(function() {
         });
     }
 
-    $.post(api+'/api/top5',{project:'',keywords:keyword.join(',')},function(e,r){
+    $.post(api+'/api/top5',{project:'',keywords:keyword.join(','),fb:fbAccount},function(e,r){
         console.log('top5e',e)
         console.log('top5r',r);
         var html = [];

@@ -26,11 +26,17 @@ module.exports = function(esClient){
                         "keywords": req.body.keywords.split(',')[i].trim()
                     }
                 })
+
+            }
+        }
+        if (req.body.fb.length>0){
+            for(var i=0;i<req.body.fb.split(',').length;i++){
                 k2.push({
                     "term": {
-                        "keyword": req.body.keywords.split(',')[i].trim()
+                        "about.name": req.body.fb.split(',')[i].trim().toLowerCase()
                     }
                 })
+
             }
         }
         async.parallel([
@@ -96,6 +102,11 @@ module.exports = function(esClient){
                                             },
                                             "like" : {
                                                 "filter" : { "term": { "favorited": true} }
+                                            },
+                                            "follower" : {
+                                                "sum" : {
+                                                    "field" : "user.followers_count"
+                                                }
                                             }
                                         }
                                     }
@@ -104,10 +115,10 @@ module.exports = function(esClient){
                                 }
                             }
                         };
-                        console.log('eng',JSON.stringify(body,null,2))
+                        //console.log('eng',JSON.stringify(body,null,2))
                         esClient.search(body,
                         function(err,resp){
-                            console.log('eng',resp)
+                            //console.log('eng',resp)
                             if(err){
                                 console.log(err);
                                 callback(err,'');
@@ -118,7 +129,8 @@ module.exports = function(esClient){
                                 for (var i=0;i<a.length;i++){
                                     r.push({
                                         date:a[i].key_as_string.split(' ')[0],
-                                        total: (a[i].rt.value + a[i].fav.value + a[i].reply.value + a[i].like.doc_count + a[i].share.doc_count)
+                                        total: (a[i].rt.value + a[i].fav.value + a[i].reply.value + a[i].like.doc_count + a[i].share.doc_count),
+                                        follower: a[i].follower.value
                                     })
                                 }
                                 retval.twitter = r
@@ -130,7 +142,7 @@ module.exports = function(esClient){
                 else callback(null, []);
             },
             function(callback) {
-                if (source.indexOf('facebook')>-1){
+                if (source.indexOf('facebook')>-1 && req.body.fb.length>0){
                     if (k.length==0) callback('nokeyword',[])
                     else {
                         var sentiment = [];
@@ -179,6 +191,8 @@ module.exports = function(esClient){
                                 }
                             }
                         };
+                        console.log('GRAPH',JSON.stringify(body,null,2))
+                        //body.body.query.constant_score.filter.bool.must.push(k2)
                         esClient.search(body,
                         function(err,resp){
                             if(err){
@@ -191,7 +205,8 @@ module.exports = function(esClient){
                                 for (var i=0;i<a.length;i++){
                                     r.push({
                                         date:a[i].key_as_string.split(' ')[0],
-                                        total: a[i].doc_count
+                                        total: a[i].doc_count,
+                                        follower: 1
                                     })
                                 }
                                 retval.facebook = r
@@ -235,6 +250,17 @@ module.exports = function(esClient){
                 })
             }
         }
+        if (req.body.fb.length>0){
+            for(var i=0;i<req.body.fb.split(',').length;i++){
+                k2.push({
+                    "term": {
+                        "about.name": req.body.fb.split(',')[i].trim().toLowerCase()
+                    }
+                })
+
+            }
+        }
+
         async.parallel([
             function(callback) {
                 if (source.indexOf('twitter')>-1){
@@ -347,7 +373,7 @@ module.exports = function(esClient){
                                                       }
                                                   }
                                               ],
-                                              "should": k
+                                              "should": k2
                                           }
                                       }
                                   }
@@ -421,6 +447,17 @@ module.exports = function(esClient){
                 })
             }
         }
+        if (req.body.fb.length>0){
+            for(var i=0;i<req.body.fb.split(',').length;i++){
+                k2.push({
+                    "term": {
+                        "about.name": req.body.fb.split(',')[i].trim().toLowerCase()
+                    }
+                })
+
+            }
+        }
+        
         async.parallel([
             function(callback) {
                 if (k.length==0) callback('nokeyword',[])

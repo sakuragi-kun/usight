@@ -13,6 +13,7 @@ $(function() {
     var api = localStorage.publicApi;
 
     var trackerName = [];
+    var fbAccount = '';
     var startPeriod = moment().subtract('days', 6).format('YYYY-MM-DD'), endPeriod = moment().format('YYYY-MM-DD');
     var source = [];
     var sentiment = [];
@@ -40,6 +41,17 @@ $(function() {
         //keyword = JSON.parse(localStorage.getItem('usight-tracker')).twitter.mainkeyword
     }
     catch(e){}
+    var ff = []
+    try{
+        for (var i=0;i<tracker.length;i++){
+            console.log('sendBody3',tracker[i].facebook)
+            ff.push(tracker[i].facebook['facebookid'])
+
+        }
+        //keyword = JSON.parse(localStorage.getItem('usight-tracker')).twitter.mainkeyword
+    }
+    catch(e){}
+    fbAccount = ff.join(',')
     console.log('tw2',keyword)
     console.log('period',$('#period').html())
 
@@ -475,11 +487,15 @@ period.on('change',function(event){
     $(event.currentTarget).find("option:selected").each(function(i, selected){
       values[i] = $(selected).text();
     });
-    console.log("selected values: ", values);
+    console.log("selected values: ", values, tracker);
     trackerName = values;
+    fbAccount = '';
+    var f = []
+    keyword = []
     try{
         for (var i=0;i<tracker.length;i++){
-            if (tracker[i].indexOf(values)>-1){
+            if (values.indexOf(tracker[i].trackername)>-1){
+                f.push(tracker[i].facebook['facebookid'])
                 for (var j=0;j<tracker[i].twitter.mainkeyword.split(',').length;j++){
                     try{
                         if (tracker[i].twitter.mainkeyword.split(',')[j].length>0) keyword.push(tracker[i].twitter.mainkeyword.split(',')[j])
@@ -492,7 +508,23 @@ period.on('change',function(event){
         //keyword = JSON.parse(localStorage.getItem('usight-tracker')).twitter.mainkeyword
     }
     catch(e){}
-    console.log('tw2',keyword)
+    if (f.length == 0){
+        for (var i=0;i<tracker.length;i++){
+            f.push(tracker[i].facebook['facebookid'])
+            console.log('sendBody2',tracker[i].facebook)
+        }
+    }
+    fbAccount = f.join(',')
+    if (keyword.length == 0){
+        for (var i=0;i<tracker.length;i++){
+            for (var j=0;j<tracker[i].twitter.mainkeyword.split(',').length;j++){
+                try{
+                    if (tracker[i].twitter.mainkeyword.split(',')[j].length>0) keyword.push(tracker[i].twitter.mainkeyword.split(',')[j])
+                }
+                catch(e){}
+            }
+        }
+    }
     queryData();
 })
 
@@ -564,6 +596,7 @@ function queryData(){
         trackerName: trackerName,
         sentiment: sentiment,
         keywords: keyword.join(','),
+        fb: fbAccount,
         max:40
     }
     console.log('sendBody',body)
@@ -634,13 +667,17 @@ function queryData(){
         a3 = ['instagram']
         a4 = ['news']
         a5 = ['playstore']
+        totalEngagement = 0;
+        totalReach = 0;
 
         for (var i=0;i<arrdate.length;i++){
             var stat1 = false;
             for (var j=0;j<e.message['twitter'].length;j++){
                 if (arrdate[i]==e.message.twitter[j].date) {
-                    stat1=e.message.twitter[j].total
+                    stat1=(e.message.twitter[j].total/e.message.twitter[j].follower)
                     su.twitter += e.message.twitter[j].total
+                    totalEngagement += e.message.twitter[j].total
+                    totalReach += e.message.twitter[j].follower
                 }
 
                 console.log('hitung',su.twitter,e.message.twitter[j].total)
@@ -652,6 +689,8 @@ function queryData(){
             for (var j=0;j<e.message['facebook'].length;j++){
                 if (arrdate[i]==e.message.facebook[j].date){
                     stat2=e.message.facebook[j].total
+                    totalEngagement += e.message.facebook[j].total
+                    totalReach += e.message.facebook[j].follower
                     su.facebook += e.message.facebook[j].total
                 }
 
@@ -663,6 +702,8 @@ function queryData(){
             a5.push(0)
             par2.push(arrdate[i].split('-')[1]+'/'+arrdate[i].split('-')[2])
         }
+        $('#totalEngagement').html(totalEngagement);
+        $('#totalReach').html(totalReach);
         par.push(a1,a2,a3,a4,a5)
         console.log('totalsu',su)
 

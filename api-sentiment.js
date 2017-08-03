@@ -21,13 +21,24 @@ module.exports = function(esClient){
                         "keywords": req.body.keywords.split(',')[i].trim()
                     }
                 })
-                k2.push({
+                /*k2.push({
                     "term": {
                         "keyword": req.body.keywords.split(',')[i].trim()
                     }
-                })
+                })*/
             }
         }
+        if (req.body.fb.length>0){
+            for(var i=0;i<req.body.fb.split(',').length;i++){
+                k2.push({
+                    "term": {
+                        "about.name": req.body.fb.split(',')[i].trim().toLowerCase()
+                    }
+                })
+
+            }
+        }
+
         async.parallel([
             function(callback) {
                 if (source.indexOf('twitter')>-1){
@@ -210,13 +221,24 @@ module.exports = function(esClient){
                         "keywords": req.body.keywords.split(',')[i].trim()
                     }
                 })
-                k2.push({
+                /*k2.push({
                     "term": {
                         "keyword": req.body.keywords.split(',')[i].trim()
                     }
-                })
+                })*/
             }
         }
+        if (req.body.fb.length>0){
+            for(var i=0;i<req.body.fb.split(',').length;i++){
+                k2.push({
+                    "term": {
+                        "about.name": req.body.fb.split(',')[i].trim().toLowerCase()
+                    }
+                })
+
+            }
+        }
+
         async.parallel([
             function(callback) {
                 if (source.indexOf('twitter')>-1){
@@ -532,13 +554,24 @@ module.exports = function(esClient){
                         "keywords": req.body.keywords.split(',')[i].trim()
                     }
                 })
-                k2.push({
+                /*k2.push({
                     "term": {
                         "keyword": req.body.keywords.split(',')[i].trim()
                     }
-                })
+                })*/
             }
         }
+        if (req.body.fb.length>0){
+            for(var i=0;i<req.body.fb.split(',').length;i++){
+                k2.push({
+                    "term": {
+                        "about.name": req.body.fb.split(',')[i].trim().toLowerCase()
+                    }
+                })
+
+            }
+        }
+
 
         var source = req.body.source?req.body.source:[]
         async.parallel([
@@ -758,13 +791,24 @@ module.exports = function(esClient){
                         "keywords": req.body.keywords.split(',')[i].trim()
                     }
                 })
-                k2.push({
+                /*k2.push({
                     "term": {
                         "keyword": req.body.keywords.split(',')[i].trim()
                     }
-                })
+                })*/
             }
         }
+        if (req.body.fb.length>0){
+            for(var i=0;i<req.body.fb.split(',').length;i++){
+                k2.push({
+                    "term": {
+                        "about.name": req.body.fb.split(',')[i].trim().toLowerCase()
+                    }
+                })
+
+            }
+        }
+
         async.parallel([
             function(callback) {
                 if (source.indexOf('twitter')>-1){
@@ -1033,13 +1077,24 @@ module.exports = function(esClient){
                         "keywords": req.body.keywords.split(',')[i].trim()
                     }
                 })
-                k2.push({
+                /*k2.push({
                     "term": {
                         "keyword": req.body.keywords.split(',')[i].trim()
                     }
-                })
+                })*/
             }
         }
+        if (req.body.fb.length>0){
+            for(var i=0;i<req.body.fb.split(',').length;i++){
+                k2.push({
+                    "term": {
+                        "about.name": req.body.fb.split(',')[i].trim().toLowerCase()
+                    }
+                })
+
+            }
+        }
+
 
         var source = req.body.source?req.body.source:[]
         async.parallel([
@@ -1270,13 +1325,24 @@ module.exports = function(esClient){
                         "keywords": req.body.keywords.split(',')[i].trim()
                     }
                 })
-                k2.push({
+                /*k2.push({
                     "term": {
                         "keyword": req.body.keywords.split(',')[i].trim()
                     }
-                })
+                })*/
             }
         }
+        if (req.body.fb.length>0){
+            for(var i=0;i<req.body.fb.split(',').length;i++){
+                k2.push({
+                    "term": {
+                        "about.name": req.body.fb.split(',')[i].trim().toLowerCase()
+                    }
+                })
+
+            }
+        }
+
         async.parallel([
             function(callback) {
                 if (source.indexOf('twitter')>-1){
