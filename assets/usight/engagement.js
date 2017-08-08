@@ -280,7 +280,7 @@ $(function() {
             bindto: '#sentiment',
             size: { width: $('#sentiment').parent().width()-5, height:$('#sentiment').parent().width()-75},
             color: {
-                pattern: ['#1EAAF2', '#E72565', '#159688']
+                pattern: ['#1EAAF2', '#E72565', '#159688','#FAB542']
             },
             data: {
                 columns: arr,
@@ -669,12 +669,16 @@ function queryData(){
         a5 = ['playstore']
         totalEngagement = 0;
         totalReach = 0;
+        var erTwitter = 0;
+        var erFacebook = 0;
 
         for (var i=0;i<arrdate.length;i++){
             var stat1 = false;
             for (var j=0;j<e.message['twitter'].length;j++){
                 if (arrdate[i]==e.message.twitter[j].date) {
                     stat1=parseFloat(e.message.twitter[j].total/e.message.twitter[j].follower).toFixed(2)
+                    console.log('erTwittertrace_'+i,e.message.twitter[j].total,e.message.twitter[j].follower)
+                    erTwitter += (e.message.twitter[j].total/e.message.twitter[j].follower)
                     su.twitter += e.message.twitter[j].total
                     totalEngagement += e.message.twitter[j].total
                     totalReach += e.message.twitter[j].follower
@@ -689,6 +693,7 @@ function queryData(){
             for (var j=0;j<e.message['facebook'].length;j++){
                 if (arrdate[i]==e.message.facebook[j].date){
                     stat2=parseFloat(e.message.facebook[j].total).toFixed(2)
+                    erFacebook += (e.message.facebook[j].total/e.message.facebook[j].follower)
                     totalEngagement += e.message.facebook[j].total
                     totalReach += e.message.facebook[j].follower
                     su.facebook += e.message.facebook[j].total
@@ -704,7 +709,11 @@ function queryData(){
         }
         $('#totalEngagement').html(totalEngagement);
         $('#totalReach').html(totalReach);
+        //$('#totalER').html(parseFloat((erTwitter/arrdate.length)+(erFacebook/arrdate.length)/2).toFixed(2))
+        console.log('erTwitter',erTwitter)
+        $('#totalER').html(parseFloat((erTwitter/arrdate.length)).toFixed(2))
         par.push(a1,a2,a3,a4,a5)
+
         console.log('totalsu',su)
 
         console.log('buzzpar',par,par2)

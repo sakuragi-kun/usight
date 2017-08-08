@@ -718,7 +718,7 @@ function queryData(){
             if (i==1){
                 html.push('<div class="row">')
             }
-            html.push('<div class="col-lg-4">',
+            html.push('<div class="col-lg-6">',
                 '<div class="panel panel-flat" >',
                     '<div class="panel-heading">',
                         '<h6 class="panel-title">'+key+'</h6>',
@@ -757,6 +757,7 @@ function queryData(){
                 ["Low Priority"]
             ];
             var htmlList = [];
+            e.message[key].sort(compare)
             for (var i=0;i<10;i++){
 
                 if (e.message[key][i]){
@@ -781,6 +782,14 @@ function queryData(){
         }
         //drawWordCloud(e.message);
     });
+    function compare(a,b) {
+      if (a.doc_count > b.doc_count)
+        return -1;
+      if (a.doc_count < b.doc_count)
+        return 1;
+      return 0;
+    }
+
     drawDonut([
         ['data1', 30,20],
         ['data2', 120],

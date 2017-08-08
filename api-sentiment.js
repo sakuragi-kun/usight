@@ -878,7 +878,7 @@ module.exports = function(esClient){
                                         dt: resp.hits.hits[i]._source.date,
                                         text: resp.hits.hits[i]._source.text,
                                         id: resp.hits.hits[i]._id,
-                                        url: 'https://twitter.com/statuses/'+resp.hits.hits[i]._source.id,
+                                        url: 'https://twitter.com/statuses/'+resp.hits.hits[i]._source.id_str,
                                         source: 'twitter',
                                         total: resp.hits.total
                                     })
@@ -958,7 +958,7 @@ module.exports = function(esClient){
                                         dt: resp.hits.hits[i]._source.date,
                                         text: resp.hits.hits[i]._source.post_message,
                                         id: resp.hits.hits[i]._id,
-                                        url: 'https://facebook.com/'+resp.hits.hits[i]._source.about.name+'/posts/'+resp.hits.hits[i]._source.post_id,
+                                        url: 'https://facebook.com/'+resp.hits.hits[i]._source.about.name+'/posts/'+(resp.hits.hits[i]._source.post_id.split('_')[0]),
                                         source: 'facebook',
                                         total: resp.hits.total
                                     })

@@ -135,7 +135,8 @@ module.exports = function(esClient){
                                     r.push({
                                         date:a[i].key_as_string.split(' ')[0],
                                         total: (a[i].rt.value + a[i].fav.value + a[i].reply.value + a[i].like.doc_count + a[i].share.doc_count),
-                                        follower: Math.round(a[i].follower.value/a[i].distinct_user.value)
+                                        //follower: Math.round(a[i].follower.value/a[i].distinct_user.value)
+                                        follower: Math.round(a[i].follower.value)
                                     })
                                 }
                                 retval.twitter = r
